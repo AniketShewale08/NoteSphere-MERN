@@ -1,0 +1,41 @@
+.viewNotes {
+  margin-top: 20px;
+}
+
+.viewNotes h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.note-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 5px; 
+}
+
+/* Medium screens (tablets and small desktops) */
+@media (min-width: 640px) and (max-width: 1190px) {
+  .note-grid {
+    grid-template-columns: repeat(2, 1fr); 
+  }
+}
+
+@media (max-width: 690px) {
+  .note-grid {
+    grid-template-columns: repeat(1, 1fr); 
+  }
+}
+
+.note-item {
+  width: 100%; 
+  height: auto; 
+  padding: 20px 0px;
+  display: flex;
+  justify-content: center;
+  border-radius: 8px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.note-item:hover {
+  transform: translateY(-5px);
+}

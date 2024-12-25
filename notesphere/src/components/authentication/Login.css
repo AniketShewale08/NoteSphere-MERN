@@ -1,0 +1,75 @@
+/* Main login container */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 20px;
+  flex-direction: column;
+}
+
+/* Login form container */
+.login-form {
+  width: 100%;
+  max-width: 400px;
+  padding: 30px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.login-form h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.login-form .form-label {
+  font-size: 1rem;
+}
+
+.login-form .form-control {
+  padding: 12px;
+  font-size: 1rem;
+}
+
+.login-form button {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  margin-top: 20px;
+}
+
+.login-form a {
+  display: block;
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+.alert-danger {
+  color: red;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .login-form {
+    width: 100%;
+    padding: 15px;
+  }
+
+  .login-container {
+    padding: 20px;
+  }
+
+  .login-form h2 {
+    font-size: 1.6rem;
+  }
+
+  .login-form button {
+    padding: 12px;
+    font-size: 1rem;
+  }
+}

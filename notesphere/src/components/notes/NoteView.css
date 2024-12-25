@@ -1,0 +1,107 @@
+/* Floating Action Button */
+.floating-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s, transform 0.3s;
+}
+.floating-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.1);
+}
+
+/* Note View Container */
+.note-view-container {
+  padding: 20px;
+  max-width: 100%;
+  margin: 0 auto;
+  background-color: #ffffff;
+  margin-top: 28px;
+  height: 488px;
+  border-radius: 40px;
+}
+.note-content {
+  text-align: center;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 20px;
+}
+.note-content h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+.note-content h4 {
+  font-size: 1.2rem;
+  color: #007bff;
+  margin-bottom: 20px;
+}
+.note-content p {
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: justify;
+  word-wrap: break-word;
+}
+.note-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.note-actions button {
+  min-width: 100px;
+}
+
+/* Empty Note Message */
+.empty-note-message {
+  text-align: center;
+  margin-top: 0px;
+}
+.empty-note-message h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+.empty-note-message img {
+  max-width: 300px;
+  margin-top: 20px;
+  border-radius: 8px;
+}
+.empty-note-message .lead {
+  font-size: 1rem;
+  color: #555;
+  margin-top: 15px;
+}
+
+@media (max-width: 370px){
+  .empty-note-message img{
+    max-width: 150px;
+  }
+}
+.icon {
+  color: white;
+  font-weight: bold;
+}
+.iconLeft {
+  color: darkblue;
+  font-weight: bold;
+}
+
+General Reset
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}

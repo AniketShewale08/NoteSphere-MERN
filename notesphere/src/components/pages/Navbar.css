@@ -1,0 +1,23 @@
+.navbar .btn {
+  margin-left: 0px;
+}
+
+.navbar .container{
+    padding-left: 10px;
+}
+
+.logo-letter {
+    font-family: "Georgia, serif";
+    font-size: 50px;
+    transform: rotate(28deg);
+    display: inline-block;
+    text-align: center;
+    transition: color 1s ease-in-out;
+}
+
+.logo-text {
+  font-size: 20px;
+  display: inline-block;
+  margin-left: -6px;
+  text-align: center;
+}

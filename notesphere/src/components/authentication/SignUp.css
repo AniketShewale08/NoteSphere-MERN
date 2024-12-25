@@ -1,0 +1,122 @@
+/* Main container styling */
+.signup-container {
+    margin: 0 auto;
+    padding: 20px;
+    max-width: 99%;
+    background-color: white;
+    border-radius: 20px;
+    padding: 20px;
+  }
+  
+  .signup-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  /* Form container */
+  .signup-form-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+  }
+  
+
+  /* Input fields */
+  .signup-input {
+    margin-bottom: 15px;
+  }
+  
+  .signup-input input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+  }
+  
+  /* Button */
+  .signup-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .signup-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Right-side content */
+  .signup-right {
+    text-align: center;
+    padding: 20px;
+    max-width: 500px;
+    color: #495057;
+  }
+  
+  .signup-right h2 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #007bff;
+  }
+  
+  .signup-right p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  
+  .signup-right ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+  }
+  
+  .signup-right ul li {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  
+  .signup-right ul li::before {
+    margin-right: 10px;
+    color: #007bff;
+  }
+
+  h2 {
+    font-family: 'Georgia, serif';
+  }
+  
+  ul {
+    padding-left: 0;
+    text-align: left;
+  }
+  
+  ul li {
+    margin: 0px 0;
+  }
+  
+  /* Tablet and mobile responsiveness */
+  @media (max-width: 768px) {
+    .signup-row {
+      flex-direction: column;
+    }
+  
+    .signup-form-container,
+    .signup-right {
+      max-width: 100%;
+    }
+  }
+  

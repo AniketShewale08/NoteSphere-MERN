@@ -1,0 +1,103 @@
+.card {
+  min-height: 230px; 
+  width: 300px; 
+  margin: 15px auto; 
+  border: 1px solid #ddd; 
+  border-radius: 8px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  transition: transform 0.2s ease-in-out;
+  background-color: #fff; 
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 15px; 
+  height: 100%; 
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.card-subtitle {
+  color: #007bff;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.card-text {
+  font-size: 0.95rem;
+  color: #555;
+  margin-top: 10px;
+  flex-grow: 1; 
+}
+
+.card-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  position: absolute;
+  bottom: 15px; 
+  left: 15px;
+  right: 15px;
+}
+
+.card-actions button {
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.card-actions .btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}
+
+.card-actions .btn-danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+.card-actions button:hover {
+  opacity: 0.9;
+}
+
+/* Responsive Styles */
+@media (max-width: 576px) {
+  .card {
+    min-height: 200px;
+    width: 100%; 
+  }
+
+  .card-body {
+    padding: 10px;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .card-text {
+    font-size: 0.9rem;
+  }
+
+  .card-actions {
+    position: static; 
+    margin-top: 10px;
+  }
+
+  .card-actions button {
+    font-size: 0.8rem;
+    padding: 5px 8px;
+  }
+}
