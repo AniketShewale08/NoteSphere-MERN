@@ -9,16 +9,24 @@ const NoteState = (props) => {
 
   // get all notes
   const getNotes = async () => {
-    const response = await fetch(`${host}/api/notes/fetchallnotes`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "auth-token": localStorage.getItem("token"),
-      },
-    });
-    const json = await response.json();
-    setNotes(json.notes);
+    try {
+      const response = await fetch(`${host}/api/notes/fetchallnotes`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("token"),
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch notes");
+      }
+      const json = await response.json();
+      setNotes(json.notes);
+    } catch (errors) {
+      console.log("Error while fetching notes: ", errors.message);
+    }
   };
+
   // Add a note
   const addNote = async (title, description, tag) => {
     try {
@@ -30,12 +38,11 @@ const NoteState = (props) => {
         },
         body: JSON.stringify({ title, description, tag }),
       });
+      if (!response.ok) {
+        throw new Error("Failed to add a note or Invalid json response");
+      } 
       const json = await response.json();
-      if (response.ok) {
-        setNotes(json.notes);
-      } else {
-        console.log("Failed to add a note or Invalid json response", json);
-      }
+      setNotes(json.notes);
     } catch (error) {
       console.error("Error adding notes", error);
     }
@@ -43,6 +50,11 @@ const NoteState = (props) => {
 
   // Delete a note
   const deleteNote = async (id) => {
+    const newNote = notes.filter((note) => {
+      return note._id !== id;
+    });
+    setNotes(newNote);
+
     try {
       const response = await fetch(`${host}/api/notes/deletenote/${id}`, {
         method: "DELETE",
@@ -51,46 +63,47 @@ const NoteState = (props) => {
           "auth-token": localStorage.getItem("token"),
         },
       });
+      // eslint-disable-next-line
       const json = await response.json();
-      if (response.ok) {
-        const newNote = notes.filter((note) => {
-          return note._id !== id;
-        });
-        setNotes(newNote);
-      } else {
-        console.log("Failed to delete a note:", json);
+      if (!response.ok) {
+        throw new Error("Failed to delete the note");
       }
     } catch (error) {
       console.log("Error while deleting a note: ", error);
+      setNotes([...notes]);
     }
   };
 
   // Edit a note
   const editNote = async (id, title, description, tag) => {
     // API calls
-    const response = await fetch(`${host}/api/notes/updatenote/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "auth-token": localStorage.getItem("token"),
-      },
-      body: JSON.stringify({ title, description, tag }),
-    });
-    const json = await response.json();
-    console.log(json);
+    try {
+      const response = await fetch(`${host}/api/notes/updatenote/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("token"),
+        },
+        body: JSON.stringify({ title, description, tag }),
+      });
+      // eslint-disable-next-line
+      const json = await response.json();
 
-    // Logic to edit notes at client
-    let newNotes = JSON.parse(JSON.stringify(notes));
-    for (let index = 0; index < newNotes.length; index++) {
-      const element = newNotes[index];
-      if (element._id === id) {
-        newNotes[index].title = title;
-        newNotes[index].description = description;
-        newNotes[index].tag = tag;
-        break;
+      // Logic to edit notes at client
+      let newNotes = JSON.parse(JSON.stringify(notes));
+      for (let index = 0; index < newNotes.length; index++) {
+        const element = newNotes[index];
+        if (element._id === id) {
+          newNotes[index].title = title;
+          newNotes[index].description = description;
+          newNotes[index].tag = tag;
+          break;
+        }
       }
+      setNotes(newNotes);
+    } catch (errors) {
+      console.log("Error while updating the note", errors.message);
     }
-    setNotes(newNotes);
   };
 
   // get a specific notes
@@ -103,9 +116,12 @@ const NoteState = (props) => {
           "auth-token": localStorage.getItem("token"),
         },
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to get a note");
+      }
       const json = await response.json();
       setOneNote(json.note);
-      console.log(json.note);
     } catch (errors) {
       console.log("Error while getting a specific note", errors);
     }

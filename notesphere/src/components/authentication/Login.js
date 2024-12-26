@@ -5,11 +5,11 @@ import "./Login.css";
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
-  const [loading, setLoading] = useState(false);  // Loading state
+  const [loading, setLoading] = useState(false); // Loading state
   const [errorMessage, setErrorMessage] = useState(""); // Error message state
   const navigate = useNavigate();
   const context = useContext(alertContext);
-  const { showAlert } =  context;
+  const { showAlert } = context;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,7 +69,6 @@ const Login = () => {
               value={credentials.email}
               required
               autoFocus
-              pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
             />
           </div>
           <div className="mb-1">
@@ -86,7 +85,11 @@ const Login = () => {
               required
             />
           </div>
-          <button type="submit" className="btn btn-primary w-100 mt-3" disabled={loading}>
+          <button
+            type="submit"
+            className="btn btn-primary w-100 mt-3"
+            disabled={loading}
+          >
             {loading ? "Logging In..." : "Submit"}
           </button>
         </form>
