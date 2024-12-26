@@ -172,9 +172,13 @@ function NoteView() {
       <div className="note-view-container">
         {oneNote && oneNote.title ? (
           <div className="note-content">
-            <h1 className="text-center my-2">{oneNote.title}</h1>
+            <h1 className="text-center my-2">{oneNote.title.length > 24
+              ? `${oneNote.title.slice(0, 21)}...`
+              : oneNote.title}</h1>
             <h4 className="text-center my-2" style={{ color: "blue" }}>
-              {oneNote.tag}
+            {oneNote.tag.length > 24
+              ? `${oneNote.tag.slice(0, 21)}...`
+              : oneNote.tag}
             </h4>
 
             <div className="my-2 d-flex justify-content-between align-items-center">
@@ -205,34 +209,34 @@ function NoteView() {
               </button>
             </div>
 
-            <p className="my-2">{oneNote.description}</p>
+            <p className="my-2 ms-3">{oneNote.description}</p>
           </div>
         ) : (
           <div className="empty-note-message">
-            <img
-              src={currentImg === "imgage1" ? NoteImg1 : NoteImg2}
-              alt="No Note Selected"
-              className="empty-note-image"
-            />
-            <h2>
-              Welcome to
-              <span
-                style={{
-                  transform: "rotate(28deg)",
-                  display: "inline-block",
-                  textAlign: "center",
-                  fontFamily: "Georgia, serif",
-                  fontSize: "30px",
-                }}
-              >
-                <div className="ms-2">N</div>
-              </span>
-              <span className="n">oteSphere</span>
-            </h2>
-            <p className="lead">
-              Capture your ideas and thoughts seamlessly with our intuitive
-              platform.
-            </p>
+              
+              <img
+                src={currentImg === "imgage1" ? NoteImg1 : NoteImg2}
+                alt="No Note Selected"
+                className="empty-note-image"/>
+              <h2>
+                Welcome to
+                <span
+                  style={{
+                    transform: "rotate(28deg)",
+                    display: "inline-block",
+                    textAlign: "center",
+                    fontFamily: "Georgia, serif",
+                    fontSize: "20px",
+                  }}
+                >
+                  <div className="ms-2">N</div>
+                </span>
+                <span className="n">oteSphere</span>
+              </h2>
+              <p className="lead">
+                Capture your ideas and thoughts seamlessly with our intuitive
+                platform.
+              </p>
           </div>
         )}
       </div>

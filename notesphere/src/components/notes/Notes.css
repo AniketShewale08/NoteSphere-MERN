@@ -11,6 +11,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr); 
   gap: 5px; 
+  padding: 20px;
 }
 
 /* Medium screens (tablets and small desktops) */
@@ -38,4 +39,49 @@
 
 .note-item:hover {
   transform: translateY(-5px);
+}
+
+.search-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-container label {
+  margin-bottom: 10px; 
+  font-size: 1.2rem; 
+}
+
+.input-with-icon {
+  position: relative;
+  width: 50%; 
+  max-width: 400px; 
+}
+
+.input-with-icon .search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #888; 
+  font-size: 1.2rem;
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding-left: 35px; 
+  padding-right: 10px; 
+}
+
+/* When there are no notes */
+.no-notes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.empty-notes-message {
+  text-align: center;
+  font-size: 18px;
+  color: #666;
 }
