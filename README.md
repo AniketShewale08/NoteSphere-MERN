@@ -10,7 +10,12 @@ It features a responsive and user-friendly interface, making it accessible acros
 ## Features
 - **Effortless Note Management**: Add, edit, and delete notes seamlessly.
 - **Real-time Updates**: Experience smooth performance with real-time data sync.
+- **Organize with Tags: Use tags to categorize and quickly retrieve notes.
+- **Search Notes: Instantly find notes using the search functionality.
 - **Responsive Design**: Optimized for both desktop and mobile devices.
+- ** Secure Authentication: User authentication with JWT for secure access.
+- ** Data Persistence: Store and retrieve notes from a MongoDB database.
+- ** Edit and Delete: Modify and delete notes with a single click.
 
 ## Dataset Information
 NoteSphere leverages dynamic storage mechanisms powered by MongoDB. No static dataset is required as users create and manage their data interactively.
