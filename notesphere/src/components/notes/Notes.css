@@ -1,0 +1,105 @@
+/* ============================================================
+   Notes workspace
+   ============================================================ */
+.viewNotes {
+  margin-top: 28px;
+  animation: fadeIn 0.6s var(--ease) both;
+}
+
+.viewNotes h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 22px;
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Search */
+.search-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.search-container label {
+  margin-bottom: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.input-with-icon {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+}
+.input-with-icon .search-icon {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  color: var(--violet);
+  font-size: 1.05rem;
+  pointer-events: none;
+  z-index: 2;
+}
+.input-with-icon input {
+  width: 100%;
+  padding-left: 42px !important;
+  padding-right: 14px;
+  border-radius: var(--radius-pill) !important;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Grid */
+.note-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 20px 0;
+}
+@media (min-width: 640px) and (max-width: 1190px) {
+  .note-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 690px) {
+  .note-grid { grid-template-columns: repeat(1, 1fr); }
+}
+
+.note-item {
+  width: 100%;
+  padding: 18px 0;
+  display: flex;
+  justify-content: center;
+  animation: fadeInUp 0.5s var(--ease) both;
+}
+/* staggered entrance for the first several cards */
+.note-item:nth-child(1) { animation-delay: 0.04s; }
+.note-item:nth-child(2) { animation-delay: 0.10s; }
+.note-item:nth-child(3) { animation-delay: 0.16s; }
+.note-item:nth-child(4) { animation-delay: 0.22s; }
+.note-item:nth-child(5) { animation-delay: 0.28s; }
+.note-item:nth-child(6) { animation-delay: 0.34s; }
+
+/* Empty state */
+.no-notes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 180px;
+}
+.empty-notes-message {
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--muted);
+  padding: 40px 30px;
+  border: 2px dashed rgba(139, 92, 246, 0.35);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.45);
+  max-width: 460px;
+  margin: 0 auto;
+}

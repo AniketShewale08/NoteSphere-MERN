@@ -1,0 +1,111 @@
+/* ---------- Sign up ---------- */
+.signup-container {
+  margin: 40px auto;
+  padding: 34px;
+  max-width: 1050px;
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  animation: fadeInUp 0.6s var(--ease) both;
+}
+
+.signup-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+
+/* Form side */
+.signup-form-container {
+  background: #ffffff;
+  padding: 30px 26px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  max-width: 460px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  animation: scaleIn 0.55s var(--ease) 0.1s both;
+}
+.signup-form-container::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: var(--grad-primary);
+}
+.signup-form-container h2 {
+  font-weight: 700;
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.signup-input { margin-bottom: 15px; }
+.signup-input input {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.signup-input input:focus {
+  outline: none;
+  border-color: var(--indigo);
+  box-shadow: var(--shadow-glow);
+}
+
+.signup-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-size: 1.05rem;
+  margin-top: 6px;
+}
+
+/* Marketing side */
+.signup-right {
+  text-align: center;
+  padding: 20px;
+  max-width: 460px;
+  color: #475569;
+  animation: fadeInUp 0.6s var(--ease) 0.2s both;
+}
+.signup-right h2 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  color: var(--indigo-600);
+}
+.signup-right p { font-size: 1rem; line-height: 1.65; }
+
+.signup-right ul { list-style: none; padding: 0; margin: 16px 0; text-align: left; }
+.signup-right ul li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.6);
+  transition: transform 0.25s var(--ease), background 0.25s var(--ease);
+}
+.signup-right ul li:hover {
+  transform: translateX(6px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+h2 { font-family: "Poppins", "Georgia", serif; }
+
+@media (max-width: 768px) {
+  .signup-container { padding: 20px; }
+  .signup-row { flex-direction: column; }
+  .signup-form-container,
+  .signup-right { max-width: 100%; }
+}

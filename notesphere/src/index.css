@@ -1,0 +1,384 @@
+/* ============================================================
+   NoteSphere — Design System
+   Modern gradient + glassmorphism theme with animations.
+   Layered on top of Bootstrap (Bootstrap kept for grid/modal).
+   ============================================================ */
+
+:root {
+  /* Brand palette */
+  --indigo: #6366f1;
+  --indigo-600: #4f46e5;
+  --violet: #8b5cf6;
+  --pink: #ec4899;
+  --cyan: #06b6d4;
+
+  /* Gradients */
+  --grad-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+  --grad-primary-hover: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+  --grad-accent: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  --grad-cyan: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+
+  /* Text */
+  --text: #1e293b;
+  --muted: #64748b;
+  --text-invert: #f8fafc;
+
+  /* Surfaces */
+  --surface: #ffffff;
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --page-bg: #eef1ff;
+
+  /* Elevation */
+  --shadow-sm: 0 2px 8px rgba(79, 70, 229, 0.08);
+  --shadow-md: 0 12px 30px -12px rgba(79, 70, 229, 0.28);
+  --shadow-lg: 0 24px 60px -18px rgba(79, 70, 229, 0.42);
+  --shadow-glow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================================================
+   Dark theme — activated via <html data-theme="dark">
+   ============================================================ */
+:root[data-theme="dark"] {
+  --text: #e5e9f5;
+  --muted: #9aa4c0;
+  --text-invert: #0b1020;
+
+  --surface: #1a2036;
+  --glass: rgba(26, 32, 54, 0.62);
+  --glass-border: rgba(148, 163, 184, 0.16);
+  --page-bg: #0b1020;
+
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 14px 34px -14px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 28px 64px -18px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 0 4px rgba(139, 92, 246, 0.25);
+
+  /* Bootstrap's own text vars, so its components default to light text */
+  --bs-body-color: #e5e9f5;
+  --bs-body-color-rgb: 229, 233, 245;
+  --bs-heading-color: #f1f4fb;
+  --bs-emphasis-color: #ffffff;
+  --bs-secondary-color: rgba(229, 233, 245, 0.75);
+  --bs-tertiary-color: rgba(229, 233, 245, 0.55);
+}
+
+/* Themed transition so toggling feels smooth */
+body,
+.card,
+.form-control,
+.modal-content,
+.add-note-section,
+.note-view-container,
+.login-form,
+.signup-container,
+.signup-form-container {
+  transition: background 0.35s var(--ease), color 0.35s var(--ease),
+    border-color 0.35s var(--ease), box-shadow 0.35s var(--ease);
+}
+
+:root[data-theme="dark"] body::before {
+  background:
+    radial-gradient(42rem 42rem at 12% -8%, rgba(139, 92, 246, 0.22), transparent 60%),
+    radial-gradient(38rem 38rem at 100% 0%, rgba(236, 72, 153, 0.16), transparent 55%),
+    radial-gradient(46rem 46rem at 50% 120%, rgba(6, 182, 212, 0.18), transparent 60%),
+    linear-gradient(180deg, #0b1020 0%, #0f1329 100%);
+  background-attachment: fixed;
+}
+
+:root[data-theme="dark"] .form-control {
+  background: rgba(20, 26, 46, 0.85);
+  border-color: rgba(148, 163, 184, 0.2);
+  color: var(--text);
+}
+:root[data-theme="dark"] .form-control:focus {
+  background: #141a2e;
+}
+:root[data-theme="dark"] .form-control::placeholder { color: #6b7594; }
+:root[data-theme="dark"] .form-label { color: #b6c0dc; }
+
+:root[data-theme="dark"] .modal-content {
+  background: rgba(20, 25, 43, 0.96);
+}
+
+:root[data-theme="dark"] .signup-form-container { background: #141a2e; }
+
+:root[data-theme="dark"] .signup-right ul li {
+  background: rgba(255, 255, 255, 0.05);
+}
+:root[data-theme="dark"] .signup-right ul li:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .note-content .note-description {
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+}
+:root[data-theme="dark"] .empty-notes-message {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+/* Bootstrap muted text needs lifting in dark mode */
+:root[data-theme="dark"] .text-muted { color: #9aa4c0 !important; }
+
+/* Any text inside cards must stay legible in dark mode.
+   (Gradient headings use -webkit-text-fill-color, so they are unaffected;
+   the tag pills and buttons set their own colors and win via !important;
+   .card-text keeps its muted token via its own more-specific rule.) */
+:root[data-theme="dark"] .card { color: var(--text); }
+:root[data-theme="dark"] .card-title { color: var(--text); }
+
+/* Sign-up marketing side used a hardcoded dark slate */
+:root[data-theme="dark"] .signup-right,
+:root[data-theme="dark"] .signup-right p,
+:root[data-theme="dark"] .signup-right li { color: #c3cbe4; }
+:root[data-theme="dark"] .signup-right h2 { color: #a5b4fc; }
+
+/* ---------- Base ---------- */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  color: var(--text);
+  background-color: var(--page-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Animated aurora background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(42rem 42rem at 12% -8%, rgba(139, 92, 246, 0.22), transparent 60%),
+    radial-gradient(38rem 38rem at 100% 0%, rgba(236, 72, 153, 0.16), transparent 55%),
+    radial-gradient(46rem 46rem at 50% 120%, rgba(6, 182, 212, 0.16), transparent 60%),
+    linear-gradient(180deg, #eef1ff 0%, #f6f4ff 100%);
+  background-attachment: fixed;
+  animation: auroraShift 18s ease-in-out infinite alternate;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: "Poppins", "Inter", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+/* ============================================================
+   Keyframes
+   ============================================================ */
+@keyframes auroraShift {
+  0%   { filter: hue-rotate(0deg); transform: scale(1); }
+  100% { filter: hue-rotate(18deg); transform: scale(1.06); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  50%      { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translate(-50%, -16px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Reusable animation helpers */
+.animate-fade-up { animation: fadeInUp 0.7s var(--ease) both; }
+.animate-fade    { animation: fadeIn 0.8s var(--ease) both; }
+.animate-scale   { animation: scaleIn 0.6s var(--ease) both; }
+
+/* ============================================================
+   Bootstrap component overrides (theme skin)
+   ============================================================ */
+
+/* Buttons — everything except the modal close (X) */
+.btn:not(.btn-close) {
+  border: none;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.55rem 1.4rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease),
+    filter 0.25s var(--ease);
+  z-index: 0;
+}
+.btn:not(.btn-close)::after {
+  /* sheen sweep on hover */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 80%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.6s var(--ease);
+  z-index: -1;
+}
+.btn:not(.btn-close):hover::after { transform: translateX(120%); }
+.btn:not(.btn-close):hover { transform: translateY(-2px); }
+.btn:not(.btn-close):active { transform: translateY(0) scale(0.98); }
+.btn:not(.btn-close):focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-primary {
+  background: var(--grad-primary);
+  box-shadow: 0 8px 20px -8px rgba(99, 102, 241, 0.6);
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background: var(--grad-primary-hover) !important;
+  box-shadow: 0 14px 28px -8px rgba(124, 58, 237, 0.6) !important;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  box-shadow: 0 8px 20px -10px rgba(71, 85, 105, 0.6);
+}
+.btn-secondary:hover,
+.btn-secondary:active {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%) !important;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  box-shadow: 0 8px 20px -10px rgba(225, 29, 72, 0.6);
+}
+.btn-danger:hover,
+.btn-danger:active {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+}
+
+.btn:disabled,
+.btn.disabled { filter: saturate(0.6) opacity(0.75); }
+
+/* Inputs */
+.form-control {
+  border-radius: var(--radius-sm);
+  border: 1.5px solid #e2e8f0;
+  padding: 0.7rem 0.9rem;
+  background: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease),
+    background 0.25s var(--ease);
+}
+.form-control::placeholder { color: #94a3b8; }
+.form-control:focus {
+  border-color: var(--indigo);
+  background: #fff;
+  box-shadow: var(--shadow-glow);
+}
+.form-label {
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.35rem;
+}
+
+/* Cards — soft glass base (component CSS refines sizing) */
+.card {
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease),
+    border-color 0.3s var(--ease);
+}
+
+/* Modal (edit note) */
+.modal-content {
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.modal-header {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  background: var(--grad-primary);
+}
+.modal-header .modal-title { color: #fff; font-weight: 700; }
+.modal-header .btn-close { filter: invert(1) brightness(2); }
+.modal-footer { border-top: 1px solid rgba(226, 232, 240, 0.8); }
+
+/* Alerts */
+.alert {
+  border: none;
+  border-radius: var(--radius);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Custom scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.5) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--indigo), var(--violet));
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--violet); }
+
+/* Accessibility: honor reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

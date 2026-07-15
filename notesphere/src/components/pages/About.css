@@ -1,0 +1,86 @@
+/* ============================================================
+   About page
+   ============================================================ */
+.about-container {
+  background: transparent;
+  padding-top: 40px;
+}
+
+.about-container h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--text); /* solid, so "About" is never transparent */
+  animation: fadeInUp 0.6s var(--ease) both;
+}
+
+/* "NoteSphere" wordmark rendered as a gradient. The rotated "N" (#full) and the
+   "oteSphere" span EACH carry their own gradient fill — an element with a
+   transform (or a block <div>) does not inherit a parent's background-clip:text,
+   which is why the N kept going invisible. Clipping only these two elements
+   (not the whole heading) also avoids the ghost/duplicate N. */
+.about-container h1 #full,
+.about-container h1 .n {
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.about-container .lead {
+  font-size: 1.2rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeInUp 0.6s var(--ease) 0.1s both;
+}
+
+
+.features-overview .row {
+  gap: 22px;
+  justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.features-overview .col-md-4 {
+  flex: 1 1 280px;
+  max-width: 340px;
+  padding: 30px 24px;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  margin: 10px 0;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  animation: fadeInUp 0.6s var(--ease) both;
+}
+.features-overview .col-md-4:nth-child(1) { animation-delay: 0.08s; }
+.features-overview .col-md-4:nth-child(2) { animation-delay: 0.2s; }
+.features-overview .col-md-4:nth-child(3) { animation-delay: 0.32s; }
+.features-overview .col-md-4:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+}
+
+.features-overview .col-md-4 i {
+  color: transparent;
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  transition: transform 0.35s var(--ease);
+}
+.features-overview .col-md-4:hover i { transform: scale(1.12) rotate(-6deg); }
+
+.features-overview .col-md-4 h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: 14px;
+  color: var(--text);
+}
+.features-overview .col-md-4 p {
+  color: var(--muted);
+  margin-bottom: 0;
+}

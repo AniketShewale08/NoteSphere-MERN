@@ -1,0 +1,22 @@
+.alert-container {
+  position: fixed;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1050;
+  width: 90%;
+  max-width: 520px;
+  text-align: center;
+}
+
+.alert-container .alert {
+  border: none;
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+  animation: slideDown 0.4s var(--ease) both;
+}
+
+.alert-container .alert strong { font-weight: 700; }

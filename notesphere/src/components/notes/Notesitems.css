@@ -1,0 +1,97 @@
+/* ============================================================
+   Note card (scoped to .note-item so it never leaks onto
+   the landing-page feature cards, which also use .card)
+   ============================================================ */
+.note-item .card {
+  position: relative;
+  min-height: 235px;
+  width: 300px;
+  margin: 0 auto;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius) !important;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease),
+    border-color 0.3s var(--ease);
+}
+
+/* Gradient accent bar that reveals on hover */
+.note-item .card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--grad-primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s var(--ease);
+}
+.note-item .card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+.note-item .card:hover::before { transform: scaleX(1); }
+
+.note-item .card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px 18px 60px;
+  height: 100%;
+}
+
+.note-item .card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  font-family: "Poppins", sans-serif;
+}
+
+/* Tag pill */
+.note-item .card-subtitle,
+.note-item .card-tag {
+  align-self: flex-start;
+  color: #fff !important;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-top: 6px !important;
+  padding: 3px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--grad-accent);
+  box-shadow: 0 4px 12px -5px rgba(139, 92, 246, 0.7);
+}
+
+.note-item .card-text {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-top: 12px;
+  line-height: 1.55;
+  flex-grow: 1;
+}
+
+/* Actions pinned to the bottom */
+.note-item .card-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  position: absolute;
+  bottom: 16px;
+  left: 18px;
+  right: 18px;
+}
+.note-item .card-actions button {
+  padding: 6px 14px;
+  font-size: 0.82rem;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .note-item .card { width: 100%; min-height: 210px; }
+  .note-item .card-body { padding: 14px 14px 58px; }
+  .note-item .card-title { font-size: 1.05rem; }
+}
