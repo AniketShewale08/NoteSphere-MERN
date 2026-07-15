@@ -57,7 +57,7 @@ dependencies and environment file.
    ```bash
    cd notesphere-backend
    npm install
-   cp .env.sample .env   # then fill in the values (see below)
+   cp .env   # then fill in the values (see below)
    npm run dev           # starts on http://localhost:5000
    ```
    Backend environment variables (`notesphere-backend/.env`):
@@ -72,7 +72,7 @@ dependencies and environment file.
    ```bash
    cd notesphere
    npm install
-   cp .env.sample .env   # optional; defaults to http://localhost:5000
+   cp .env   # optional; defaults to http://localhost:5000
    npm start             # starts on http://localhost:3000
    ```
    Frontend environment variables (`notesphere/.env`):
