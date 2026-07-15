@@ -49,7 +49,7 @@ dependencies and environment file.
 
 1. Clone the Repository:
    ```bash
-   git clone https://github.com/yourusername/NoteSphere.git
+   git clone https://github.com/AniketShewale08/NoteSphere.git
    cd NoteSphere
    ```
 
