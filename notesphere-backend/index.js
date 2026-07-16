@@ -9,8 +9,20 @@ connectToMongo();
 
 const app = express()
 const port = process.env.PORT || 5000
-// Restrict cross-origin requests to the frontend origin (override with CLIENT_URL)
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:3000" }))
+
+// Allowed frontend origins — comma-separated list in CLIENT_URL
+// (e.g. "http://localhost:3000,http://192.168.1.100:3000").
+// Requests with no Origin header (curl, mobile webviews, same-origin) are allowed.
+const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:3000")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+app.use(
+  cors({
+    origin: (origin, callback) =>
+      callback(null, !origin || allowedOrigins.includes(origin)),
+  })
+);
 app.use(express.json())
 
 app.use('/api/auth', authRoutes);
