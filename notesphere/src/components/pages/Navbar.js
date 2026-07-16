@@ -61,6 +61,7 @@ const Navbar = () => {
             textAlign: "center",
             fontFamily: "Georgia, serif",
             fontSize: "50px",
+            paddingBottom: "inherit",
           }}
         >
           <div id="full">N</div>
@@ -85,7 +86,7 @@ const Navbar = () => {
       {/* Navbar Links */}
       <div
         className="collapse navbar-collapse mx-3"
-        style={{ paddingTop: "21px" }}
+        style={{ paddingTop: "1px" }}
         id="navbarNav"
       >
         <ul className="navbar-nav me-auto">
