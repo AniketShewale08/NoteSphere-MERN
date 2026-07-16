@@ -35,3 +35,6 @@ yarn-error.log*
 
 # Feature workflow docs (kept local, not tracked)
 /addFeatures/
+
+# Personal learning notes (kept local, not tracked)
+/Personal Notes - learn/
