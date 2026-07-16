@@ -6,6 +6,8 @@ import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
 import fetchuser from '../middleware/fetchuser.js';
 import authLimiter from '../middleware/rateLimiter.js';
+import { sendEmail } from '../services/emailService.js';
+import { buildWelcomeEmail } from '../templates/welcomeEmail.js';
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -55,6 +57,19 @@ router.post("/createuser", authLimiter, [
           });
           success = true;
           res.json({success, authenticate});
+
+          // Send a welcome email in the background. This runs AFTER the response and is
+          // not awaited, so email latency or failure can never block or fail registration.
+          try {
+            const { subject, html } = buildWelcomeEmail(user.name);
+            sendEmail({ to: user.email, subject, html }).then((result) => {
+              if (!result.success) {
+                console.error(`[welcome-email] failed for ${user.email}: ${result.error}`);
+              }
+            });
+          } catch (err) {
+            console.error("[welcome-email] unexpected error:", err.message);
+          }
     }
     // To handle the unexpected error
     catch(error){
