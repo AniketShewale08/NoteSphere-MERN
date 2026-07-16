@@ -29,3 +29,9 @@ yarn-debug.log*
 yarn-error.log*
 # Claude Code local settings (machine-specific)
 .claude/settings.local.json
+
+# AI development guide (kept local, not tracked)
+/CLAUDE.md
+
+# Feature workflow docs (kept local, not tracked)
+/addFeatures/
