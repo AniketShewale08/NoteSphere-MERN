@@ -9,6 +9,7 @@ import authLimiter from '../middleware/rateLimiter.js';
 import { sendEmail } from '../services/emailService.js';
 import { buildWelcomeEmail } from '../templates/welcomeEmail.js';
 import { buildPasswordResetEmail } from '../templates/passwordResetEmail.js';
+import { buildPasswordChangedEmail } from '../templates/passwordChangedEmail.js';
 import crypto from 'crypto';
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -210,6 +211,19 @@ router.post('/reset-password/:token', authLimiter, [
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
         await user.save();
+
+        // Notify the user that their password changed (security heads-up). Fire-and-forget —
+        // this must never block or fail the password reset itself.
+        try {
+            const { subject, html } = buildPasswordChangedEmail(user.name);
+            sendEmail({ to: user.email, subject, html }).then((result) => {
+                if (!result.success) {
+                    console.error(`[password-changed] email failed for ${user.email}: ${result.error}`);
+                }
+            });
+        } catch (err) {
+            console.error("[password-changed] unexpected error:", err.message);
+        }
 
         return res.json({ success: true, message: "Your password has been reset. You can now log in." });
     } catch (error) {
