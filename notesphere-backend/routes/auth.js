@@ -8,6 +8,8 @@ import fetchuser from '../middleware/fetchuser.js';
 import authLimiter from '../middleware/rateLimiter.js';
 import { sendEmail } from '../services/emailService.js';
 import { buildWelcomeEmail } from '../templates/welcomeEmail.js';
+import { buildPasswordResetEmail } from '../templates/passwordResetEmail.js';
+import crypto from 'crypto';
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -131,7 +133,93 @@ router.post('/login', authLimiter, [
 });
 
 
-// POST request /getuser : To get a specific user 
+// POST request /api/auth/forgot-password : request a password reset link
+router.post('/forgot-password', authLimiter, [
+    body("email").isEmail().withMessage("Invalid email address.")
+], async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    // Always return the SAME response whether or not the email exists, so this endpoint
+    // can't be used to discover which emails are registered (no account enumeration).
+    const genericResponse = {
+        success: true,
+        message: "If an account with that email exists, a password reset link has been sent."
+    };
+
+    try {
+        const user = await User.findOne({ email: req.body.email });
+
+        if (user) {
+            // Create a secure token. Store only its HASH; email the raw token in the link.
+            const rawToken = crypto.randomBytes(32).toString('hex');
+            const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+            user.resetPasswordToken = hashedToken;
+            user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+            await user.save();
+
+            // Build the reset link from the first configured client origin.
+            const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000")
+                .split(",")[0].trim();
+            const resetUrl = `${clientUrl}/reset-password/${rawToken}`;
+
+            const { subject, html } = buildPasswordResetEmail(user.name, resetUrl);
+            const result = await sendEmail({ to: user.email, subject, html });
+            if (!result.success) {
+                console.error(`[reset-password] email failed for ${user.email}: ${result.error}`);
+            }
+        }
+
+        return res.json(genericResponse);
+    } catch (error) {
+        // Log server-side but still return the generic response (never leak details).
+        console.error("Error in forgot-password:", error.message);
+        return res.json(genericResponse);
+    }
+});
+
+// POST request /api/auth/reset-password/:token : set a new password using a valid token
+router.post('/reset-password/:token', authLimiter, [
+    body("password").isLength({ min: 5 }).withMessage("Password must be at least 5 character long.")
+], async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    try {
+        // Hash the incoming raw token the same way and find a matching, non-expired user.
+        const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: "This reset link is invalid or has expired." });
+        }
+
+        // Hash and save the new password, then clear the reset token so it can't be reused.
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(req.body.password, salt);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        return res.json({ success: true, message: "Your password has been reset. You can now log in." });
+    } catch (error) {
+        console.error("Error in reset-password:", error.message);
+        return res.status(500).json({ success: false, message: "Internal server error." });
+    }
+});
+
+
+// POST request /getuser : To get a specific user
 router.post('/getuser', fetchuser, async (req, res)=> {
 
     try{

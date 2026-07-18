@@ -18,6 +18,14 @@ const UserSchema = new Schema({
     date:{
         type:Date,
         default:Date.now
+    },
+    // Password reset: we store the HASH of the reset token (never the raw token),
+    // plus an expiry timestamp. Both are cleared once the password is reset.
+    resetPasswordToken:{
+        type:String
+    },
+    resetPasswordExpires:{
+        type:Date
     }
 });
 
