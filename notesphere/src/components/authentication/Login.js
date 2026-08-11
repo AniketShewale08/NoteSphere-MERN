@@ -41,7 +41,6 @@ const Login = () => {
       }
     } catch (error) {
       setLoading(false); // Stop loading
-      console.log("Internal error occurred");
       setErrorMessage("Something went wrong, please try again later.");
     }
   };

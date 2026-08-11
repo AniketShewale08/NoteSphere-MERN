@@ -33,14 +33,19 @@ const Notes = () => {
   }, [notes, search])
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
-      getNotes().catch((err) => {
-        console.error("Error fetching notes:", err);
-        navigate("/login");
-      });
-    } else {
+    if (!localStorage.getItem("token")) {
       navigate("/login");
+      return;
     }
+    getNotes().catch((err) => {
+      // Only bounce to login when the token is actually invalid/expired,
+      // not on a transient network error.
+      if (err.message === "Unauthorized") {
+        navigate("/login");
+      } else {
+        console.error("Error fetching notes:", err.message);
+      }
+    });
   }, [getNotes, navigate]);
 
   return (

@@ -9,10 +9,14 @@ const Notesitems = (props) => {
   const { showAlert } = useContext(alertContext);
   const { note } = props;
 
-  const handleDelete = () => {
-    deleteNote(note._id);
-    setOneNote(null);
-    showAlert("Note Deleted successfully", "success");
+  const handleDelete = async () => {
+    const success = await deleteNote(note._id);
+    if (success) {
+      setOneNote(null);
+      showAlert("Note Deleted successfully", "success");
+    } else {
+      showAlert("Failed to delete note. Please try again.", "danger");
+    }
   };
 
   const handleGetNote = () => {
@@ -45,14 +49,13 @@ const Notesitems = (props) => {
           </p>
           <div className="card-actions">
             <button
-              className="fa-solid btn me-3 btn-sm btn-secondary"
-              id="specific-note"
+              className="btn me-3 btn-sm btn-secondary"
               onClick={handleGetNote}
             >
               View Note
             </button>
             <button
-              className="fa-solid btn btn-sm btn-danger me-2"
+              className="btn btn-sm btn-danger me-2"
               onClick={handleDelete}
             >
               Delete Note

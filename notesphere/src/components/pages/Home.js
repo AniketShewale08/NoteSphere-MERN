@@ -1,6 +1,7 @@
 import React from "react";
 import Notes from "../notes/Notes";
 import { useNavigate } from "react-router-dom";
+import BrandLogo from "../common/BrandLogo";
 import "./Home.css";
 
 export default function Home() {
@@ -16,30 +17,10 @@ export default function Home() {
         <Notes />
       ) : (
         <>
-          <div className="hero-section text-center py-5 bg-light">
+          <div className="hero-section text-center py-5">
             <div className="container">
               <h1>
-                <span
-                  style={{
-                    transform: "rotate(28deg)",
-                    display: "inline-block",
-                    textAlign: "center",
-                    fontFamily: "Georgia, serif",
-                    fontSize: "64px",
-                  }}
-                >
-                  N
-                </span>
-                <span
-                  style={{
-                    fontSize: "26px",
-                    display: "inline-block",
-                    marginLeft: "-10px",
-                    textAlign: "center",
-                  }}
-                >
-                  oteSphere
-                </span>
+                <BrandLogo nSize={64} restSize={26} />
               </h1>
               <p className="lead mt-3">
                 Capture Your Thoughts Anytime, Anywhere
@@ -53,7 +34,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <div className="features py-5 bg-white">
+          <div className="features py-5">
             <div className="container">
               <h2 className="text-center mb-4">Why Choose NoteSphere?</h2>
               <div className="row text-center">
