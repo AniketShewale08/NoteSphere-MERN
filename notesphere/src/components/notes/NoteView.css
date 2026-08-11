@@ -55,6 +55,8 @@
   font-size: 0.82rem;
   color: var(--muted);
   margin: 0 0 14px;
+  margin-left: 10px;
+
 }
 
 /* Circular back button pinned to the top-left corner of the box */

@@ -2,7 +2,8 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import alertContext from "../../context/alert/alertContext";
 import API_URL from "../../config";
-import "./SignUp.css";  // Import the CSS file
+import BrandLogo from "../common/BrandLogo";
+import "./SignUp.css";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -135,28 +136,7 @@ const SignUp = () => {
             <h2>
               Welcome to{" "}
               <div>
-                <span
-                  style={{
-                    transform: "rotate(28deg)",
-                    display: "inline-block",
-                    textAlign: "center",
-                    fontFamily: "Georgia, serif",
-                    fontSize: "50px",
-                  }}
-                >
-                  <div id="full">N</div>
-                </span>
-                <span
-                  className="n"
-                  style={{
-                    fontSize: "20px",
-                    display: "inline-block",
-                    marginLeft: "-6px",
-                    textAlign: "center",
-                  }}
-                >
-                  oteSphere
-                </span>
+                <BrandLogo nSize={50} restSize={20} gradient />
               </div>
             </h2>
 

@@ -5,6 +5,7 @@ import { FaArrowLeft, FaPen, FaTrash, FaRegClock } from "react-icons/fa";
 import NoteImg1 from "../assets/images/Note1.png";
 import NoteImg2 from "../assets/images/Note2.png";
 import alertContext from "../../context/alert/alertContext";
+import BrandLogo from "../common/BrandLogo";
 
 function NoteView() {
   const context = useContext(noteContext);
@@ -24,9 +25,14 @@ function NoteView() {
     setOneNote(null);
   };
 
-  const handleDelete = () => {
-    deleteNote(oneNote._id);
-    setOneNote(null);
+  const handleDelete = async () => {
+    const success = await deleteNote(oneNote._id);
+    if (success) {
+      setOneNote(null);
+      showAlert("Note Deleted Successfully", "success");
+    } else {
+      showAlert("Failed to delete note. Please try again.", "danger");
+    }
   };
 
   const updateNote = (currentNote) => {
@@ -39,17 +45,26 @@ function NoteView() {
     });
   };
 
-  const handleClick = () => {
-    // Update the note (editNote already updates the notes array in state)
-    editNote(note.id, note.etitle, note.edescription, note.etag);
-    setOneNote({
-      ...oneNote,
-      title: note.etitle,
-      description: note.edescription,
-      tag: note.etag,
-    });
-    showAlert("Note Updated Successfully", "success");
-    refClose.current.click();
+  const handleClick = async () => {
+    // Only reflect the edit in the UI after the server confirms it.
+    const success = await editNote(
+      note.id,
+      note.etitle,
+      note.edescription,
+      note.etag
+    );
+    if (success) {
+      setOneNote({
+        ...oneNote,
+        title: note.etitle,
+        description: note.edescription,
+        tag: note.etag,
+      });
+      showAlert("Note Updated Successfully", "success");
+      refClose.current.click();
+    } else {
+      showAlert("Failed to update note. Please try again.", "danger");
+    }
   };
 
   const onChange = (e) => {
@@ -213,25 +228,12 @@ function NoteView() {
           </div>
         ) : (
           <div className="empty-note-message">
-              
               <img
                 src={currentImg === "imgage1" ? NoteImg1 : NoteImg2}
                 alt="No Note Selected"
                 className="empty-note-image"/>
               <h2>
-                Welcome to
-                <span
-                  style={{
-                    transform: "rotate(28deg)",
-                    display: "inline-block",
-                    textAlign: "center",
-                    fontFamily: "Georgia, serif",
-                    fontSize: "20px",
-                  }}
-                >
-                  <div className="ms-2">N</div>
-                </span>
-                <span className="n">oteSphere</span>
+                Welcome to <BrandLogo nSize={32} gradient />
               </h2>
               <p className="lead">
                 Capture your ideas and thoughts seamlessly with our intuitive

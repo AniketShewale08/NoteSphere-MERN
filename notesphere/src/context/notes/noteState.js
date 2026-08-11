@@ -6,33 +6,33 @@ const NoteState = (props) => {
   const host = API_URL;
 
   const [notes, setNotes] = useState([]);
-  const [oneNote, setOneNote] = useState([]);
+  const [oneNote, setOneNote] = useState(null);
 
   // get all notes
   // Memoized so its identity is stable — otherwise a consumer's useEffect that depends on
   // getNotes would re-run on every render (setNotes -> re-render -> new getNotes -> ...),
-  // causing an infinite re-fetch loop. `host` is a module constant and setNotes is stable,
-  // so an empty dependency array is correct.
+  // causing an infinite re-fetch loop.
   const getNotes = useCallback(async () => {
-    try {
-      const response = await fetch(`${host}/api/notes/fetchallnotes`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("token"),
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch notes");
-      }
-      const json = await response.json();
-      setNotes(json.notes);
-    } catch (errors) {
-      console.log("Error while fetching notes: ", errors.message);
+    const response = await fetch(`${host}/api/notes/fetchallnotes`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "auth-token": localStorage.getItem("token"),
+      },
+    });
+    // An invalid/expired token must bubble up so the caller can redirect to login.
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      throw new Error("Unauthorized");
     }
+    if (!response.ok) {
+      throw new Error("Failed to fetch notes");
+    }
+    const json = await response.json();
+    setNotes(json.notes);
   }, [host]);
 
-  // Add a note
+  // Add a note — returns true on success, false on failure so callers can gate feedback.
   const addNote = async (title, description, tag) => {
     try {
       const response = await fetch(`${host}/api/notes/addnotes`, {
@@ -44,22 +44,21 @@ const NoteState = (props) => {
         body: JSON.stringify({ title, description, tag }),
       });
       if (!response.ok) {
-        throw new Error("Failed to add a note or Invalid json response");
+        throw new Error("Failed to add a note");
       }
       const json = await response.json();
-      // Backend responds with { savedNote }, so append it to the existing array
       setNotes((prevNotes) => [...prevNotes, json.savedNote]);
+      return true;
     } catch (error) {
-      console.error("Error adding notes", error);
+      console.error("Error adding note:", error.message);
+      return false;
     }
   };
 
-  // Delete a note
+  // Delete a note — optimistic update with rollback; returns true on success.
   const deleteNote = async (id) => {
-    const newNote = notes.filter((note) => {
-      return note._id !== id;
-    });
-    setNotes(newNote);
+    const previousNotes = notes;
+    setNotes(notes.filter((note) => note._id !== id));
 
     try {
       const response = await fetch(`${host}/api/notes/deletenote/${id}`, {
@@ -69,20 +68,19 @@ const NoteState = (props) => {
           "auth-token": localStorage.getItem("token"),
         },
       });
-      // eslint-disable-next-line
-      const json = await response.json();
       if (!response.ok) {
         throw new Error("Failed to delete the note");
       }
+      return true;
     } catch (error) {
-      console.log("Error while deleting a note: ", error);
-      setNotes([...notes]);
+      console.error("Error deleting note:", error.message);
+      setNotes(previousNotes);
+      return false;
     }
   };
 
-  // Edit a note
+  // Edit a note — only updates local state after the server confirms; returns true on success.
   const editNote = async (id, title, description, tag) => {
-    // API calls
     try {
       const response = await fetch(`${host}/api/notes/updatenote/${id}`, {
         method: "PUT",
@@ -95,27 +93,20 @@ const NoteState = (props) => {
       if (!response.ok) {
         throw new Error("Failed to update the note");
       }
-      // eslint-disable-next-line
-      const json = await response.json();
 
-      // Logic to edit notes at client
-      let newNotes = JSON.parse(JSON.stringify(notes));
-      for (let index = 0; index < newNotes.length; index++) {
-        const element = newNotes[index];
-        if (element._id === id) {
-          newNotes[index].title = title;
-          newNotes[index].description = description;
-          newNotes[index].tag = tag;
-          break;
-        }
-      }
-      setNotes(newNotes);
-    } catch (errors) {
-      console.log("Error while updating the note", errors.message);
+      setNotes((prevNotes) =>
+        prevNotes.map((note) =>
+          note._id === id ? { ...note, title, description, tag } : note
+        )
+      );
+      return true;
+    } catch (error) {
+      console.error("Error updating note:", error.message);
+      return false;
     }
   };
 
-  // get a specific notes
+  // get a specific note
   const getOneNote = async (id) => {
     try {
       const response = await fetch(`${host}/api/notes/getNote/${id}`, {
@@ -131,8 +122,8 @@ const NoteState = (props) => {
       }
       const json = await response.json();
       setOneNote(json.note);
-    } catch (errors) {
-      console.log("Error while getting a specific note", errors);
+    } catch (error) {
+      console.error("Error getting note:", error.message);
     }
   };
 

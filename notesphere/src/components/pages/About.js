@@ -1,4 +1,5 @@
 import React from "react";
+import BrandLogo from "../common/BrandLogo";
 import "./About.css";
 
 export default function About() {
@@ -7,29 +8,7 @@ export default function About() {
       {/* About Section */}
       <div className="about-container py-5">
         <div className="container text-center">
-          <h1>About <span
-              style={{
-                transform: "rotate(28deg)",
-                display: "inline-block",
-                textAlign: "center",
-                fontFamily: "Georgia, serif",
-                marginRight:"2px",
-                marginLeft:"4px",
-              }}
-            >
-              <div id="full">N</div>
-            </span>
-            <span
-              className="n"
-              style={{
-                fontSize: "25px",
-                display: "inline-block",
-                marginLeft: "-6px",
-                textAlign: "center",
-              }}
-            >
-              oteSphere
-            </span></h1>
+          <h1>About <BrandLogo nSize={40} restSize={25} gradient /></h1>
           <p className="lead mt-3">
             NoteSphere is your personal note-taking application designed to help you stay organized and productive. Whether you're jotting down ideas, tracking tasks, or storing important information, NoteSphere has you covered.
           </p>

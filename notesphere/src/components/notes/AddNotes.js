@@ -17,9 +17,13 @@ const AddNote = () => {
       showAlert("Please enter a title and description!", "warning");
       return;
     }
-    await addNote(note.title, note.description, note.tag);
-    showAlert("Note Added Successfully", "success");
-    setNote({ title: "", description: "", tag: "" });
+    const success = await addNote(note.title, note.description, note.tag);
+    if (success) {
+      showAlert("Note Added Successfully", "success");
+      setNote({ title: "", description: "", tag: "" });
+    } else {
+      showAlert("Failed to add note. Please try again.", "danger");
+    }
   };
 
   const onChange = (e) => {
