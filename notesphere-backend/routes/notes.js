@@ -36,13 +36,16 @@ router.post(
         return res.status(400).json({ errors: errors.array() });
       }
 
-      // Create note object which stores all the data
+      // Create note object which stores all the data.
+      // Only set tag when provided, so the schema default ("general") applies to blank tags.
       const note = new Notes({
         title,
         description,
-        tag,
         user: req.user.id,
       });
+      if (tag) {
+        note.tag = tag;
+      }
 
       // save the notes on database
       const savedNote = await note.save();

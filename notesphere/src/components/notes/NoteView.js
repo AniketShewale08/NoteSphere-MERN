@@ -178,7 +178,7 @@ function NoteView() {
               ? `${oneNote.title.slice(0, 21)}...`
               : oneNote.title}</h1>
             <h4 className="text-center my-2">
-            {oneNote.tag.length > 24
+            {oneNote.tag?.length > 24
               ? `${oneNote.tag.slice(0, 21)}...`
               : oneNote.tag}
             </h4>
