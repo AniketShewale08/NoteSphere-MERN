@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import NoteContext from "./noteContext";
 import API_URL from "../../config";
 
@@ -9,7 +9,11 @@ const NoteState = (props) => {
   const [oneNote, setOneNote] = useState([]);
 
   // get all notes
-  const getNotes = async () => {
+  // Memoized so its identity is stable — otherwise a consumer's useEffect that depends on
+  // getNotes would re-run on every render (setNotes -> re-render -> new getNotes -> ...),
+  // causing an infinite re-fetch loop. `host` is a module constant and setNotes is stable,
+  // so an empty dependency array is correct.
+  const getNotes = useCallback(async () => {
     try {
       const response = await fetch(`${host}/api/notes/fetchallnotes`, {
         method: "GET",
@@ -26,7 +30,7 @@ const NoteState = (props) => {
     } catch (errors) {
       console.log("Error while fetching notes: ", errors.message);
     }
-  };
+  }, [host]);
 
   // Add a note
   const addNote = async (title, description, tag) => {
@@ -88,6 +92,9 @@ const NoteState = (props) => {
         },
         body: JSON.stringify({ title, description, tag }),
       });
+      if (!response.ok) {
+        throw new Error("Failed to update the note");
+      }
       // eslint-disable-next-line
       const json = await response.json();
 

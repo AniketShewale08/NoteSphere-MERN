@@ -21,8 +21,8 @@ const ResetPassword = () => {
       setErrorMessage("Passwords don't match.");
       return;
     }
-    if (passwords.password.length < 5) {
-      setErrorMessage("Password must be at least 5 characters.");
+    if (passwords.password.length < 6) {
+      setErrorMessage("Password must be at least 6 characters.");
       return;
     }
 
@@ -71,7 +71,7 @@ const ResetPassword = () => {
               name="password"
               value={passwords.password}
               onChange={onChange}
-              minLength={5}
+              minLength={6}
               required
               autoFocus
             />
@@ -87,7 +87,7 @@ const ResetPassword = () => {
               name="cpassword"
               value={passwords.cpassword}
               onChange={onChange}
-              minLength={5}
+              minLength={6}
               required
             />
           </div>

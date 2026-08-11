@@ -18,7 +18,7 @@ dotenv.config();
 router.post("/createuser", authLimiter, [
     body("name").isLength({ min: 3 }).withMessage("Name must be at least 3 character long."),
     body("email").isEmail().withMessage("Invalid email address."),
-    body("password").isLength({ min: 5 }).withMessage("Password must be at least 5 character long.")
+    body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 character long.")
 ], async (req, res) => {
 
     const errors = validationResult(req);
@@ -185,7 +185,7 @@ router.post('/forgot-password', authLimiter, [
 
 // POST request /api/auth/reset-password/:token : set a new password using a valid token
 router.post('/reset-password/:token', authLimiter, [
-    body("password").isLength({ min: 5 }).withMessage("Password must be at least 5 character long.")
+    body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 character long.")
 ], async (req, res) => {
 
     const errors = validationResult(req);

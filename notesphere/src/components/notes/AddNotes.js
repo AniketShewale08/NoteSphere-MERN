@@ -7,21 +7,17 @@ const AddNote = () => {
   const context = useContext(noteContext);
   const { showAlert } = useContext(alertContext);
 
-  const { addNote, getNotes } = context;
+  const { addNote } = context;
   const [note, setNote] = useState({ title: "", description: "", tag: "" });
 
   const handleClick = async (e) => {
     e.preventDefault();
-    if (
-      note.title.length === 0 ||
-      note.description.length === 0 ||
-      note.tag.length === 0
-    ) {
-      showAlert("Please enter value!", "warning");
+    // Tag is optional — the backend defaults it to "general" when left blank.
+    if (note.title.length === 0 || note.description.length === 0) {
+      showAlert("Please enter a title and description!", "warning");
       return;
     }
     await addNote(note.title, note.description, note.tag);
-    getNotes();
     showAlert("Note Added Successfully", "success");
     setNote({ title: "", description: "", tag: "" });
   };
