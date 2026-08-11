@@ -59,7 +59,7 @@ router.post("/createuser", authLimiter, [
             expiresIn: "7d",
           });
           success = true;
-          res.json({success, authenticate});
+          res.status(201).json({success, authenticate});
 
           // Send a welcome email in the background. This runs AFTER the response and is
           // not awaited, so email latency or failure can never block or fail registration.
@@ -76,8 +76,13 @@ router.post("/createuser", authLimiter, [
     }
     // To handle the unexpected error
     catch(error){
-        console.log("Error saving user:", error.message);
-        res.status(500).json({ message: "An error occurred", error: error.message });
+        // A duplicate email can slip past the findOne check under a race — the unique index
+        // still catches it. Map it to a clean 400 instead of a generic 500.
+        if (error.code === 11000) {
+            return res.status(400).json({ success: false, message: "This email is already exist." });
+        }
+        console.error("Error in createuser:", error.message);
+        res.status(500).json({ success: false, message: "Internal server error." });
     }
 });
 
@@ -127,9 +132,9 @@ router.post('/login', authLimiter, [
 
     }
     // handling errors in catch block
-    catch(errors){
-        console.log(errors);
-        res.status(500).json({msg:"Internal server error."})
+    catch(error){
+        console.error("Error in login:", error.message);
+        res.status(500).json({success:false, error:"Internal server error."})
     }
 });
 
@@ -239,11 +244,11 @@ router.post('/getuser', fetchuser, async (req, res)=> {
     try{
         const userId = req.user.id;
         const user = await User.findById(userId).select("-password")
-        res.status(200).json({user})  
+        res.status(200).json({user})
     }
-    catch(errors){
-       console.log(errors);
-        res.status(500).json({msg:"Internal server error."})
+    catch(error){
+        console.error("Error in getuser:", error.message);
+        res.status(500).json({success:false, error:"Internal server error."})
     }
 })
 

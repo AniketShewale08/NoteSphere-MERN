@@ -2,20 +2,24 @@ import express from "express";
 import Notes from "../models/Notes.js";
 import { body, validationResult } from "express-validator";
 import fetchuser from "../middleware/fetchuser.js";
+import { apiLimiter } from "../middleware/rateLimiter.js";
 const router = express.Router();
 
-// GET request /api/notes/getnotes
+// All note routes require a logged-in user and share the general rate limiter.
+router.use(apiLimiter);
+
+// GET /api/notes/fetchallnotes : get all notes for the logged-in user
 router.get("/fetchallnotes", fetchuser, async (req, res) => {
   try {
     const notes = await Notes.find({ user: req.user.id });
-    res.json({ notes: notes });
-  } catch (errors) {
-    console.log(errors.message);
-    res.status(500).json({ msg: "Internal server error" });
+    res.json({ notes });
+  } catch (error) {
+    console.error("Error fetching notes:", error.message);
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
-// POST request /api/notes/addnotes : To add notes to the database
+// POST /api/notes/addnotes : add a note
 router.post(
   "/addnotes",
   fetchuser,
@@ -26,122 +30,84 @@ router.post(
       .withMessage("Description must be atleast 5 character"),
   ],
   async (req, res) => {
-    // validation on the input fields
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
 
     try {
       const { title, description, tag } = req.body;
 
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-
-      // Create note object which stores all the data.
       // Only set tag when provided, so the schema default ("general") applies to blank tags.
-      const note = new Notes({
-        title,
-        description,
-        user: req.user.id,
-      });
+      const note = new Notes({ title, description, user: req.user.id });
       if (tag) {
         note.tag = tag;
       }
 
-      // save the notes on database
       const savedNote = await note.save();
-      res.json({ savedNote });
-    } catch (errors) {
-      console.log(errors.message);
-      res.status(500).json({ msg: "Internal server error" });
+      res.status(201).json({ savedNote });
+    } catch (error) {
+      console.error("Error adding note:", error.message);
+      res.status(500).json({ success: false, error: "Internal server error." });
     }
   }
 );
 
-// PUT request /api/notes/updatenote : To update a specific note
+// PUT /api/notes/updatenote/:id : update a note the user owns
 router.put("/updatenote/:id", fetchuser, async (req, res) => {
   try {
-    // getting the data from the request body
     const { title, description, tag } = req.body;
-    // create a newNote which we will update into existing note
     const newNote = {};
+    if (title) newNote.title = title;
+    if (description) newNote.description = description;
+    if (tag) newNote.tag = tag;
 
-    if (title) {
-      newNote.title = title;
-    }
-    if (description) {
-      newNote.description = description;
-    }
-    if (tag) {
-      newNote.tag = tag;
-    }
-
-    // Find the id of the notes and check if the note exist or not
+    // Treat "not found" and "not yours" identically (404) so note ids can't be enumerated.
     let note = await Notes.findById(req.params.id);
-    if (!note) {
-      return res.status(404).json({ msg: "Note is not found" });
+    if (!note || note.user.toString() !== req.user.id) {
+      return res.status(404).json({ success: false, error: "Note not found." });
     }
 
-    // check the passed user is equal to the actual note user or not
-    if (note.user.toString() !== req.user.id) {
-      return res.status(401).send("Not allowed.");
-    }
-
-    // Update the note 
     note = await Notes.findByIdAndUpdate(
       req.params.id,
       { $set: newNote },
       { new: true }
     );
     res.json({ note });
-  } catch (errors) {
-    console.log(errors.message);
-    res.status(500).json({ msg: "Internal server error" });
+  } catch (error) {
+    console.error("Error updating note:", error.message);
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
-// DELETE request: api/notes/deletenote - Delete the existing note from the database
-
+// DELETE /api/notes/deletenote/:id : delete a note the user owns
 router.delete("/deletenote/:id", fetchuser, async (req, res) => {
   try {
-    
-    // See if the notes exist or not
     let note = await Notes.findById(req.params.id);
-    if (!note) {
-      return res.status(404).send("Not found");
+    if (!note || note.user.toString() !== req.user.id) {
+      return res.status(404).json({ success: false, error: "Note not found." });
     }
 
-    // check if the owner of the notes
-    if (note.user.toString() != req.user.id) {
-      return res.status(401).send("Not allowed.");
-    }
-
-    // Delete the note with the specific id
-    note = await Notes.findByIdAndDelete(req.params.id);
-    res.json({ Success: "Note deleted successfully." });
-  } catch (errors) {
-    console.log(errors.message);
-    res.status(500).json({ msg: "Internal server error" });
+    await Notes.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: "Note deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting note:", error.message);
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
 });
 
-
-router.get('/getNote/:id', fetchuser, async (req, res)=>{
-  try{
+// GET /api/notes/getNote/:id : get a single note the user owns
+router.get("/getNote/:id", fetchuser, async (req, res) => {
+  try {
     const note = await Notes.findById(req.params.id);
-    if (!note) {
-      return res.status(404).json({ msg: "Note is not found" });
+    if (!note || note.user.toString() !== req.user.id) {
+      return res.status(404).json({ success: false, error: "Note not found." });
     }
-    if (note.user.toString() !== req.user.id) {
-      return res.status(401).send("Not allowed.");
-    }
-    res.json({note : note});
-    
+    res.json({ note });
+  } catch (error) {
+    console.error("Error getting note:", error.message);
+    res.status(500).json({ success: false, error: "Internal server error." });
   }
-  catch (errors) {
-    console.log(errors.message);
-    res.status(500).json({ msg: "Internal server error" });
-  }
-  })
-
+});
 
 export default router;

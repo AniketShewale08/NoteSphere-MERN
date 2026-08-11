@@ -1,15 +1,30 @@
 import rateLimit from "express-rate-limit";
 
-// Limit repeated auth attempts (login / signup) to slow down brute-force attacks.
-const authLimiter = rateLimit({
+const baseOptions = {
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 10, // max 10 requests per window per IP
   standardHeaders: true,
   legacyHeaders: false,
+};
+
+// Strict limiter for auth endpoints (login / signup / password reset) to slow brute-force.
+const authLimiter = rateLimit({
+  ...baseOptions,
+  limit: 10,
   message: {
     success: false,
     error: "Too many attempts. Please try again after 15 minutes.",
   },
 });
 
+// General limiter for the rest of the API to prevent abuse.
+const apiLimiter = rateLimit({
+  ...baseOptions,
+  limit: 200,
+  message: {
+    success: false,
+    error: "Too many requests. Please try again later.",
+  },
+});
+
 export default authLimiter;
+export { authLimiter, apiLimiter };
