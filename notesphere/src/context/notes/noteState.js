@@ -7,30 +7,74 @@ const NoteState = (props) => {
 
   const [notes, setNotes] = useState([]);
   const [oneNote, setOneNote] = useState(null);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // get all notes
+  // Fetch one page of notes. Without a cursor this is "page 1" — it replaces
+  // the notes array and resets pagination state. With a cursor it appends.
+  // Memoized (deps: [host] only) so getNotes/getNotesPage below can safely depend on it
+  // without picking up a new function identity on every render.
+  const fetchNotesPage = useCallback(
+    async (cursor) => {
+      const url = new URL(`${host}/api/notes/fetchallnotes`);
+      if (cursor) {
+        url.searchParams.set("cursor", cursor);
+      }
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("token"),
+        },
+      });
+      // An invalid/expired token must bubble up so the caller can redirect to login.
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        throw new Error("Unauthorized");
+      }
+      if (!response.ok) {
+        throw new Error("Failed to fetch notes");
+      }
+      const json = await response.json();
+
+      setNotes((prevNotes) =>
+        cursor ? [...prevNotes, ...json.notes] : json.notes
+      );
+      setNextCursor(json.pagination.nextCursor);
+      setHasMore(json.pagination.hasMore);
+    },
+    [host]
+  );
+
+  // get all notes (page 1) — resets the notes array and pagination state.
   // Memoized so its identity is stable — otherwise a consumer's useEffect that depends on
   // getNotes would re-run on every render (setNotes -> re-render -> new getNotes -> ...),
   // causing an infinite re-fetch loop.
   const getNotes = useCallback(async () => {
-    const response = await fetch(`${host}/api/notes/fetchallnotes`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "auth-token": localStorage.getItem("token"),
-      },
-    });
-    // An invalid/expired token must bubble up so the caller can redirect to login.
-    if (response.status === 401) {
-      localStorage.removeItem("token");
-      throw new Error("Unauthorized");
-    }
-    if (!response.ok) {
-      throw new Error("Failed to fetch notes");
-    }
-    const json = await response.json();
-    setNotes(json.notes);
-  }, [host]);
+    await fetchNotesPage();
+  }, [fetchNotesPage]);
+
+  // Fetch one page of notes starting after `cursor` and append it to the existing list.
+  // Guarded against duplicate concurrent calls and calls made once there's no more data.
+  const getNotesPage = useCallback(
+    async (cursor = nextCursor) => {
+      if (isLoadingMore || !hasMore || !cursor) {
+        return;
+      }
+
+      setIsLoadingMore(true);
+      try {
+        await fetchNotesPage(cursor);
+      } catch (error) {
+        console.error("Error fetching more notes:", error.message);
+      } finally {
+        setIsLoadingMore(false);
+      }
+    },
+    [fetchNotesPage, isLoadingMore, hasMore, nextCursor]
+  );
 
   // Add a note — returns true on success, false on failure so callers can gate feedback.
   const addNote = async (title, description, tag) => {
@@ -137,6 +181,9 @@ const NoteState = (props) => {
         deleteNote,
         editNote,
         getNotes,
+        getNotesPage,
+        hasMore,
+        isLoadingMore,
         getOneNote,
         setOneNote,
       }}

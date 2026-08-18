@@ -1,6 +1,6 @@
 import express from "express";
 import Notes from "../models/Notes.js";
-import { body, validationResult } from "express-validator";
+import { body, query, validationResult } from "express-validator";
 import fetchuser from "../middleware/fetchuser.js";
 import { apiLimiter } from "../middleware/rateLimiter.js";
 const router = express.Router();
@@ -8,16 +8,64 @@ const router = express.Router();
 // All note routes require a logged-in user and share the general rate limiter.
 router.use(apiLimiter);
 
-// GET /api/notes/fetchallnotes : get all notes for the logged-in user
-router.get("/fetchallnotes", fetchuser, async (req, res) => {
-  try {
-    const notes = await Notes.find({ user: req.user.id });
-    res.json({ notes });
-  } catch (error) {
-    console.error("Error fetching notes:", error.message);
-    res.status(500).json({ success: false, error: "Internal server error." });
+const DEFAULT_NOTES_LIMIT = 20;
+
+// GET /api/notes/fetchallnotes : get a cursor-paginated page of notes for the logged-in user
+router.get(
+  "/fetchallnotes",
+  fetchuser,
+  [
+    query("cursor")
+      .optional()
+      .isMongoId()
+      .withMessage("Invalid cursor."),
+    query("limit")
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage("Limit must be an integer between 1 and 100."),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    try {
+      const limit = req.query.limit
+        ? parseInt(req.query.limit, 10)
+        : DEFAULT_NOTES_LIMIT;
+
+      const filter = { user: req.user.id };
+      if (req.query.cursor) {
+        // Newest-first by _id, so the next page is everything older than the cursor.
+        filter._id = { $lt: req.query.cursor };
+      }
+
+      // Fetch one extra document so we know whether there's a next page
+      // without running a separate count query, then trim it back off.
+      const results = await Notes.find(filter)
+        .sort({ _id: -1 })
+        .limit(limit + 1);
+
+      const hasMore = results.length > limit;
+      const notes = hasMore ? results.slice(0, limit) : results;
+      // Only expose a cursor when there is actually another page to fetch.
+      const nextCursor = hasMore ? notes[notes.length - 1]._id : null;
+
+      res.json({
+        notes,
+        pagination: {
+          nextCursor,
+          hasMore,
+          count: notes.length,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching notes:", error.message);
+      res.status(500).json({ success: false, error: "Internal server error." });
+    }
   }
-});
+);
 
 // POST /api/notes/addnotes : add a note
 router.post(

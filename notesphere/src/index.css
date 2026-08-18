@@ -26,6 +26,12 @@
   /* Surfaces */
   --surface: #ffffff;
   --glass: rgba(255, 255, 255, 0.72);
+  /* Higher-alpha glass for surfaces that float over a busier backdrop than
+     --glass was tuned for (e.g. .search-container sticking over scrolling
+     note cards full of real text, rather than over the calmer flat page
+     background). Same blur idiom, less see-through, so foreground text
+     stays crisp. */
+  --glass-strong: rgba(255, 255, 255, 0.86);
   --glass-border: rgba(255, 255, 255, 0.6);
   --page-bg: #eef1ff;
 
@@ -42,6 +48,13 @@
   --radius-pill: 999px;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Measured rendered height of the sticky navbar (position: sticky; top: 0;
+     z-index: 1030), identical across every tested viewport width. Anything
+     that sticks itself below the navbar (e.g. .search-container in
+     Notes.css) reads its `top` offset from this token instead of a repeated
+     magic number, so a future navbar height change is a one-line fix here. */
+  --navbar-height: 107px;
 }
 
 /* ============================================================
@@ -54,6 +67,7 @@
 
   --surface: #1a2036;
   --glass: rgba(26, 32, 54, 0.62);
+  --glass-strong: rgba(26, 32, 54, 0.82);
   --glass-border: rgba(148, 163, 184, 0.16);
   --page-bg: #0b1020;
 

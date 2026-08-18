@@ -146,3 +146,43 @@
 @media (max-width: 690px) {
   .note-view-container { height: auto; min-height: 360px; }
 }
+
+/* ============================================================
+   Edit-note modal (#exampleModal)
+   Rules are scoped by id because CRA CSS is global — index.css
+   already styles .modal-content/.modal-header/.modal-footer for
+   this same modal, and unscoped .modal-* rules here would apply
+   app-wide and fight those base rules on equal specificity.
+   ============================================================ */
+#exampleModal .modal-dialog {
+  max-width: 560px;
+}
+
+/* form no longer carries its own my-3 margin — modal-body already
+   has its own padding, so that margin was pure extra whitespace */
+#exampleModal .modal-body { padding-top: 14px; }
+#exampleModal .modal-body .mb-3:last-child { margin-bottom: 0.25rem; }
+
+/* Description textarea: give it real editing room and let the
+   user drag it taller instead of being stuck at the ~2-row default */
+#exampleModal textarea#edescription {
+  min-height: 160px;
+  resize: vertical;
+}
+
+@media (max-width: 576px) {
+  /* smaller side margins so the modal isn't cramped against the
+     viewport edge, and modal-dialog-scrollable (added in JSX)
+     keeps header/footer visible while the body scrolls */
+  #exampleModal .modal-dialog { margin: 0.75rem; }
+
+  #exampleModal textarea#edescription { min-height: 130px; }
+
+  /* bump Close / Update Note up to a proper 44px touch target
+     on phones without touching global .btn sizing */
+  #exampleModal .modal-footer .btn {
+    min-height: 44px;
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+  }
+}

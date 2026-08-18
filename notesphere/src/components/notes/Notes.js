@@ -4,11 +4,18 @@ import Notesitems from "./Notesitems";
 import AddNote from "./AddNotes";
 import { useNavigate } from "react-router-dom";
 import NoteView from "./NoteView";
+import BackToTop from "../common/BackToTop";
 import "./Notes.css";
+
+// Below this many rendered notes, the floating "back to top" button is hidden
+// on tablet-and-up (see .back-to-top-narrow-only). Matches the backend's page
+// size, so a list that fits in one page doesn't get a scroll affordance it
+// doesn't need on a wide, multi-column grid.
+const BACK_TO_TOP_MIN_NOTES = 20;
 
 const Notes = () => {
   const context = useContext(noteContext);
-  const { notes, getNotes } = context;
+  const { notes, getNotes, getNotesPage, hasMore, isLoadingMore } = context;
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
@@ -90,6 +97,21 @@ const Notes = () => {
                 No notes are available. Add some to get started!
               </div>
             )}
+          </div>
+          <div className="notes-actions">
+            {hasMore && (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => getNotesPage()}
+                disabled={isLoadingMore}
+              >
+                {isLoadingMore ? "Loading..." : "Load More"}
+              </button>
+            )}
+            <BackToTop
+              hideOnWideScreens={filteredNotes.length < BACK_TO_TOP_MIN_NOTES}
+            />
           </div>
         </div>
       </div>

@@ -100,7 +100,7 @@ function NoteView() {
         aria-labelledby="exampleModalLabel"
         aria-hidden="true"
       >
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="exampleModalLabel">
@@ -114,7 +114,7 @@ function NoteView() {
               ></button>
             </div>
             <div className="modal-body">
-              <form className="my-3">
+              <form>
                 <div className="mb-3">
                   <label htmlFor="etitle" className="form-label">
                     Title
@@ -138,6 +138,7 @@ function NoteView() {
                     value={note.edescription}
                     onChange={onChange}
                     className="form-control"
+                    rows={6}
                   ></textarea>
                 </div>
                 <div className="mb-3">
