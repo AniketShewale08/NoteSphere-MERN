@@ -30,3 +30,6 @@ yarn-error.log*
 # Local-only files (not part of the deployable app)
 .claude/settings.local.json
 /CLAUDE.md
+
+# Local per-task learning/build notes (working docs, not project source)
+Personal Notes - learn/
