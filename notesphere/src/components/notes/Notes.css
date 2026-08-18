@@ -21,13 +21,44 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* Search */
+/* Search — sticky under the navbar so users can search without scrolling
+   back to the top. `top` reads the navbar's measured height from the shared
+   token (index.css) rather than repeating it here. z-index sits just below
+   the navbar's 1030 so the navbar always paints over it (including while the
+   under-992px hamburger menu is open and the navbar temporarily grows taller
+   than this offset — that's correct layering, not a bug to work around).
+   The old `margin-bottom: 8px` is now `padding` instead: a margin sits
+   outside the element's painted box, so as a sticky bar it would have let
+   note cards show through in that gap while scrolling underneath. Padding
+   keeps that spacing inside the painted background.
+   Background is frosted glass, not opaque: note cards should stay softly
+   visible (blurred, not sharp) through the bar while scrolling underneath it.
+   Uses --glass-strong rather than the app's usual --glass — this bar sits
+   over a busier backdrop (scrolling card titles/body text) than the navbar
+   or the search input itself, so it needs more opacity and a heavier blur to
+   keep its own label/input legible; readability wins over transparency.
+   backdrop-filter is unsupported in some browsers, where a translucent
+   background alone would let card text clash directly through the input —
+   the @supports fallback below swaps in the old opaque --page-bg for those. */
 .search-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  position: sticky;
+  top: var(--navbar-height);
+  z-index: 1020;
+  padding: 10px 0 8px;
+  background: var(--glass-strong);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .search-container {
+    background: var(--page-bg);
+  }
 }
 .search-container label {
   margin-bottom: 12px;
