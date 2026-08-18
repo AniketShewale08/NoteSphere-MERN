@@ -3,6 +3,11 @@
    ============================================================ */
 .viewNotes {
   margin-top: 28px;
+  /* Bottom spacing for the notes area. Kept here rather than on
+     .notes-actions because the Load More button inside it only renders while
+     hasMore is true — on a short list that removed the page's only bottom
+     spacing. Keeping it here makes the gap identical either way. */
+  padding-bottom: 32px;
   animation: fadeIn 0.6s var(--ease) both;
 }
 
@@ -56,23 +61,30 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* Grid */
+/* Grid — fluid, single track definition. Column count is derived from the
+   available width instead of hardcoded per-breakpoint counts, which used to
+   produce a brittle overlap between 640px and 690px (two media queries
+   matched at once and the later one won by source order). `minmax(min(260px,
+   100%), 1fr)` caps the minimum track at 260px on anything wide enough to
+   hold it, but falls back to 100% of the row's own width on anything
+   narrower, so a single card can never demand more space than its row has —
+   that's what actually prevents horizontal overflow at 375px, not the
+   breakpoints. */
 .note-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: 16px;
   padding: 20px 0;
 }
-@media (min-width: 640px) and (max-width: 1190px) {
-  .note-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 690px) {
-  .note-grid { grid-template-columns: repeat(1, 1fr); }
+@media (max-width: 576px) {
+  /* Same track formula, just less breathing room between cards so more
+     rows are visible per screen on phones. */
+  .note-grid { gap: 10px; padding: 14px 0; }
+  .viewNotes { padding-bottom: 24px; }
 }
 
 .note-item {
   width: 100%;
-  padding: 18px 0;
   display: flex;
   justify-content: center;
   animation: fadeInUp 0.5s var(--ease) both;
@@ -84,6 +96,18 @@
 .note-item:nth-child(4) { animation-delay: 0.22s; }
 .note-item:nth-child(5) { animation-delay: 0.28s; }
 .note-item:nth-child(6) { animation-delay: 0.34s; }
+
+/* Bottom action row — "Load More" (only while there's another page) and the
+   back-to-top button, centred together on one line. No bottom padding:
+   .viewNotes owns the bottom spacing, so it stays identical whether or not
+   either button is rendered. */
+.notes-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 0 0;
+}
 
 /* Empty state */
 .no-notes {

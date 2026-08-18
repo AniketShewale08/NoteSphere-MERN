@@ -1,0 +1,30 @@
+/* ============================================================
+   Back to top — inline icon button, sits in .notes-actions
+   next to the "Load More" button
+   ============================================================ */
+.back-to-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 44px keeps the recommended minimum touch target while staying close to the
+     height of the adjacent Load More button, so the pair reads as one row. */
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  font-size: 1.1rem;
+  /* Never let the circle squash when the row runs out of width. */
+  flex-shrink: 0;
+}
+
+/* Tablet and up, when the caller says the list is short: the grid is
+   multi-column at these widths so a short list barely scrolls, and a
+   back-to-top control that can never do much is just clutter. Phones
+   deliberately keep it — the same list is a single column there and does
+   scroll. `display: none` also drops it from the tab order and the
+   accessibility tree, so no extra handling is needed for the hidden case. */
+@media (min-width: 768px) {
+  .back-to-top-narrow-only {
+    display: none;
+  }
+}
