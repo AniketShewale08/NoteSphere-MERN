@@ -1,12 +1,42 @@
+/* Centered with symmetric left/right insets + margin-inline: auto instead of
+   left: 50% + transform: translateX(-50%), as a defensive measure — pinning
+   both edges makes the box self-constrain to its containing block no matter
+   what; it simply cannot be wider than `min(92vw, 520px)` allows, so it
+   cannot run off either side regardless of how that width resolves.
+   `top` now reads off the same --navbar-height token the sticky search bar
+   uses (Notes.css) instead of a separate hardcoded 90px, which was actually
+   shorter than the navbar's real rendered height (107px) and could sit
+   partly behind it. */
 .alert-container {
   position: fixed;
-  top: 90px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: calc(var(--navbar-height) + 12px);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
   z-index: 1050;
-  width: 90%;
-  max-width: 520px;
+  width: min(92vw, 520px);
   text-align: center;
+}
+
+/* Confirmed root cause of the "only the tail of the text is visible" bug:
+   this element used to animate with the shared `slideDown` keyframe from
+   index.css (`from { transform: translate(-50%, -16px) } to { transform:
+   translate(-50%, 0) }`). That keyframe was written for an element
+   positioned with `left: 50%` (so the transform has to carry its own -50%
+   centering offset alongside the slide). `animation: ... both` keeps the
+   `to` keyframe's computed style applied after the animation finishes —
+   so every alert box was left permanently shifted left by 50% of its OWN
+   width, well past the edge of its (already centered) container. On a
+   narrow viewport that pushes most of the box off the left edge, leaving
+   only its right portion — the tail of the message — on screen; exactly
+   the reported symptom. `slideDown` is not used anywhere else in the
+   codebase (only consumer), but rather than edit the shared keyframe in
+   index.css, this defines its own local entrance animation with only a
+   vertical offset, since this element was never positioned via left: 50%
+   and never needed the X compensation in the first place. */
+@keyframes alertSlideIn {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .alert-container .alert {
@@ -16,7 +46,21 @@
   font-weight: 500;
   box-shadow: var(--shadow-lg);
   backdrop-filter: blur(10px);
-  animation: slideDown 0.4s var(--ease) both;
+  animation: alertSlideIn 0.4s var(--ease) both;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .alert-container .alert strong { font-weight: 700; }
+
+/* The close button added in Alert.js relies on Bootstrap's `.alert-dismissible`
+   rule for its position/hit-area (`padding-right: 3rem`, absolutely
+   positioned `.btn-close` in that reserved space). Our own `.alert-container
+   .alert` rule above has higher specificity (two classes vs one) and would
+   otherwise win the padding-right side of its `padding: 14px 20px` shorthand,
+   collapsing that reserved space back down and letting the icon sit on top
+   of the centered text. Restated explicitly here so the close button always
+   has room, regardless of specificity order. */
+.alert-container .alert.alert-dismissible {
+  padding-right: 44px;
+}
