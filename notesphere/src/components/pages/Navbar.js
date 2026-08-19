@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaMoon, FaSun } from "react-icons/fa";
 import "./Navbar.css";
@@ -27,47 +27,13 @@ const Navbar = () => {
     navigate("/");
   };
 
-  function getRandomColor() {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
-
-  useEffect(() => {
-    const div = document.getElementById("full");
-    const changeColor = () => {
-      if (div) {
-        div.style.color = getRandomColor();
-      }
-    };
-    changeColor();
-    const colorInterval = setInterval(changeColor, 1000);
-
-    return () => clearInterval(colorInterval);
-  }, []);
-
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       {/* Brand Logo */}
 
       <Link className="navbar-brand align-items-center mx-3" to="/">
-        <span
-          style={{
-            transform: "rotate(28deg)",
-            display: "inline-block",
-            textAlign: "center",
-            fontFamily: "Georgia, serif",
-            fontSize: "50px",
-            paddingBottom: "inherit",
-          }}
-        >
-          <div id="full">N</div>
-        </span>
-
-        <span>oteSphere</span>
+        <span className="logo-letter">N</span>
+        <span className="logo-text">oteSphere</span>
       </Link>
 
       {/* Toggle button for small screens */}
