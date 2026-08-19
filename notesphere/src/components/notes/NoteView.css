@@ -163,6 +163,56 @@
 #exampleModal .modal-body { padding-top: 14px; }
 #exampleModal .modal-body .mb-3:last-child { margin-bottom: 0.25rem; }
 
+/* Label + live character-counter on the same line. The counter is guidance
+   only (list view truncates title/description at the limits in
+   src/constants.js, see Notesitems.js) — it never blocks submission, just
+   warns before the fact instead of surprising the user after saving. */
+#exampleModal .field-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 0.35rem;
+}
+#exampleModal .char-counter {
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: color 0.25s var(--ease);
+}
+#exampleModal .char-counter-warning {
+  color: #b45309;
+  font-weight: 600;
+}
+:root[data-theme="dark"] #exampleModal .char-counter-warning {
+  color: #fbbf24;
+}
+
+/* Informational (not error) hint shown once a field passes its preview
+   truncation limit — matches the same treatment used in AddNotes.css.
+   Always rendered (even with empty text) so its box can smoothly grow
+   in/out via max-height instead of jumping the modal's scrollable body. */
+#exampleModal .field-info-note {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin: 0;
+  padding: 0 10px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--indigo);
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: var(--radius-sm);
+  transition: max-height 0.3s var(--ease), opacity 0.25s var(--ease),
+    margin-top 0.25s var(--ease), padding 0.25s var(--ease);
+}
+#exampleModal .field-info-note.is-visible {
+  max-height: 70px;
+  opacity: 1;
+  margin-top: 6px;
+  padding: 6px 10px;
+}
+
 /* Description textarea: give it real editing room and let the
    user drag it taller instead of being stuck at the ~2-row default */
 #exampleModal textarea#edescription {

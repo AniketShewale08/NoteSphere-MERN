@@ -6,6 +6,10 @@ import NoteImg1 from "../assets/images/Note1.png";
 import NoteImg2 from "../assets/images/Note2.png";
 import alertContext from "../../context/alert/alertContext";
 import BrandLogo from "../common/BrandLogo";
+import {
+  TITLE_TRUNCATE_LIMIT,
+  DESCRIPTION_TRUNCATE_LIMIT,
+} from "../../constants";
 
 function NoteView() {
   const context = useContext(noteContext);
@@ -71,14 +75,26 @@ function NoteView() {
     setNote({ ...note, [e.target.name]: e.target.value });
   };
 
+  // Purely derived from existing `note` state — not new state of its own.
+  // Drives the informational (non-error) hint telling the user their text
+  // will be truncated in the notes-list card preview, not on save.
+  const isTitleOverPreviewLimit = note.etitle.length > TITLE_TRUNCATE_LIMIT;
+  const isDescriptionOverPreviewLimit =
+    note.edescription.length > DESCRIPTION_TRUNCATE_LIMIT;
+
+  // The alternating placeholder image only ever renders in the empty state
+  // below (no note selected). Previously this interval ran unconditionally
+  // for the component's entire lifetime, re-rendering every second even
+  // while a note was open and the image wasn't on screen at all.
   useEffect(() => {
+    if (oneNote && oneNote.title) return undefined;
     const interval = setInterval(() => {
       setCurrentImg((prevImg) =>
         prevImg === "imgage1" ? "imgage2" : "imgage1"
       );
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [oneNote]);
   return (
     <>
       {/* Hidden Button to Trigger Modal */}
@@ -116,9 +132,19 @@ function NoteView() {
             <div className="modal-body">
               <form>
                 <div className="mb-3">
-                  <label htmlFor="etitle" className="form-label">
-                    Title
-                  </label>
+                  <div className="field-label-row">
+                    <label htmlFor="etitle" className="form-label mb-0">
+                      Title
+                    </label>
+                    <small
+                      id="etitleCounter"
+                      className={`char-counter${
+                        isTitleOverPreviewLimit ? " char-counter-warning" : ""
+                      }`}
+                    >
+                      {note.etitle.length} / {TITLE_TRUNCATE_LIMIT}
+                    </small>
+                  </div>
                   <input
                     type="text"
                     id="etitle"
@@ -126,12 +152,36 @@ function NoteView() {
                     value={note.etitle}
                     onChange={onChange}
                     className="form-control"
+                    aria-describedby="etitleCounter etitleLengthHint"
                   />
+                  <p
+                    id="etitleLengthHint"
+                    className={`field-info-note${
+                      isTitleOverPreviewLimit ? " is-visible" : ""
+                    }`}
+                    aria-live="polite"
+                  >
+                    {isTitleOverPreviewLimit
+                      ? `Only the first ${TITLE_TRUNCATE_LIMIT} characters will show in the notes list preview — full text is always visible when you open the note.`
+                      : ""}
+                  </p>
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="edescription" className="form-label">
-                    Description
-                  </label>
+                  <div className="field-label-row">
+                    <label htmlFor="edescription" className="form-label mb-0">
+                      Description
+                    </label>
+                    <small
+                      id="edescriptionCounter"
+                      className={`char-counter${
+                        isDescriptionOverPreviewLimit
+                          ? " char-counter-warning"
+                          : ""
+                      }`}
+                    >
+                      {note.edescription.length} / {DESCRIPTION_TRUNCATE_LIMIT}
+                    </small>
+                  </div>
                   <textarea
                     id="edescription"
                     name="edescription"
@@ -139,7 +189,19 @@ function NoteView() {
                     onChange={onChange}
                     className="form-control"
                     rows={6}
+                    aria-describedby="edescriptionCounter edescriptionLengthHint"
                   ></textarea>
+                  <p
+                    id="edescriptionLengthHint"
+                    className={`field-info-note${
+                      isDescriptionOverPreviewLimit ? " is-visible" : ""
+                    }`}
+                    aria-live="polite"
+                  >
+                    {isDescriptionOverPreviewLimit
+                      ? `Only the first ${DESCRIPTION_TRUNCATE_LIMIT} characters will show in the notes list preview — full text is always visible when you open the note.`
+                      : ""}
+                  </p>
                 </div>
                 <div className="mb-3">
                   <label htmlFor="etag" className="form-label">
