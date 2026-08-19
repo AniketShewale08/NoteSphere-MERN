@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import alertContext from "../../context/alert/alertContext";
 import API_URL from "../../config";
 import "./Login.css";
@@ -12,6 +13,22 @@ const ResetPassword = () => {
   const [passwords, setPasswords] = useState({ password: "", cpassword: "" });
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  // Each password field toggles its own visibility independently, so
+  // checking the new password doesn't force the confirm field to reveal too.
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCPassword, setShowCPassword] = useState(false);
+
+  // Live validation feedback — recalculated on every keystroke so the user
+  // sees the problem before hitting submit, not just after.
+  const passwordError =
+    passwords.password.length > 0 && passwords.password.length < 6
+      ? "Password must be at least 6 characters."
+      : "";
+  const cpasswordError =
+    passwords.cpassword.length > 0 &&
+    passwords.password !== passwords.cpassword
+      ? "Passwords don't match."
+      : "";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,32 +81,60 @@ const ResetPassword = () => {
             <label htmlFor="password" className="form-label">
               New Password
             </label>
-            <input
-              type="password"
-              className="form-control"
-              id="password"
-              name="password"
-              value={passwords.password}
-              onChange={onChange}
-              minLength={6}
-              required
-              autoFocus
-            />
+            <div className="password-field">
+              <input
+                type={showPassword ? "text" : "password"}
+                className={`form-control${passwordError ? " is-invalid" : ""}`}
+                id="password"
+                name="password"
+                value={passwords.password}
+                onChange={onChange}
+                minLength={6}
+                required
+                autoFocus
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {passwordError && (
+              <div className="invalid-feedback d-block">{passwordError}</div>
+            )}
           </div>
           <div className="mb-1">
             <label htmlFor="cpassword" className="form-label mt-1">
               Confirm Password
             </label>
-            <input
-              type="password"
-              className="form-control"
-              id="cpassword"
-              name="cpassword"
-              value={passwords.cpassword}
-              onChange={onChange}
-              minLength={6}
-              required
-            />
+            <div className="password-field">
+              <input
+                type={showCPassword ? "text" : "password"}
+                className={`form-control${cpasswordError ? " is-invalid" : ""}`}
+                id="cpassword"
+                name="cpassword"
+                value={passwords.cpassword}
+                onChange={onChange}
+                minLength={6}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowCPassword((prev) => !prev)}
+                aria-label={showCPassword ? "Hide password" : "Show password"}
+                aria-pressed={showCPassword}
+              >
+                {showCPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {cpasswordError && (
+              <div className="invalid-feedback d-block">{cpasswordError}</div>
+            )}
           </div>
           <button
             type="submit"

@@ -47,6 +47,61 @@
   font-size: 1rem;
 }
 
+/* Password show/hide toggle. Also used by ResetPassword.js, which shares
+   this stylesheet.
+   Bootstrap adds its own background-image (the small invalid icon) and a
+   padding-right to .form-control.is-invalid — both would collide with the
+   toggle button sitting in the same corner, so both are neutralized here.
+   `!important` matches the existing `.input-with-icon input` precedent in
+   Notes.css, which overrides the same Bootstrap defaults for the same
+   icon-in-input layout. */
+.password-field {
+  position: relative;
+}
+.password-field .form-control {
+  padding-right: 56px !important;
+}
+.password-field .form-control.is-invalid {
+  background-image: none !important;
+}
+/* Scoped as `.password-field .password-toggle-btn` (0,2,0) — not just
+   `.password-toggle-btn` (0,1,0) — because `.login-form button` below is
+   (0,1,1) and would otherwise win on specificity alone (class-count ties,
+   but the type selector still out-weighs a bare class), stretching this
+   button to width:100%/padding:12px/margin-top:22px like the submit button.
+   Width/height/padding/margin are all set explicitly so no future generic
+   `button` rule can leak in the same way again. 44x44 keeps the tap target
+   at the accessible minimum while the icon glyph itself stays ~16px (its
+   size comes from the inherited font-size, untouched here). */
+.password-field .password-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.password-field .password-toggle-btn:hover {
+  color: var(--indigo);
+  background: rgba(99, 102, 241, 0.08);
+}
+.password-field .password-toggle-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-glow);
+  color: var(--indigo);
+}
+
 .login-form button {
   width: 100%;
   padding: 12px;
