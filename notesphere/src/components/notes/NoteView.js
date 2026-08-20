@@ -1,7 +1,13 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import noteContext from "../../context/notes/noteContext";
 import "./NoteView.css";
-import { FaArrowLeft, FaPen, FaTrash, FaRegClock } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaPen,
+  FaTrash,
+  FaRegClock,
+  FaTimes,
+} from "react-icons/fa";
 import NoteImg1 from "../assets/images/Note1.png";
 import NoteImg2 from "../assets/images/Note2.png";
 import alertContext from "../../context/alert/alertContext";
@@ -10,6 +16,10 @@ import {
   TITLE_TRUNCATE_LIMIT,
   DESCRIPTION_TRUNCATE_LIMIT,
 } from "../../constants";
+
+// How long the "Confirm delete?" affordance stays up before auto-reverting
+// back to the normal Delete button if the user doesn't confirm or cancel.
+const CONFIRM_REVERT_MS = 3000;
 
 function NoteView() {
   const context = useContext(noteContext);
@@ -25,11 +35,25 @@ function NoteView() {
     etag: "",
   });
 
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const revertTimerRef = useRef(null);
+
+  // Reset the confirm affordance whenever the viewed note changes (e.g. the
+  // user opens a different note, or navigates back to the empty state —
+  // oneNote is null there, hence the optional chaining below), so a stale
+  // "Confirm delete?" state never lingers on the wrong note.
+  useEffect(() => {
+    setConfirmingDelete(false);
+    return () => clearTimeout(revertTimerRef.current);
+  }, [oneNote?._id]);
+
   const handleBackToNotes = () => {
     setOneNote(null);
   };
 
   const handleDelete = async () => {
+    clearTimeout(revertTimerRef.current);
+    setConfirmingDelete(false);
     const success = await deleteNote(oneNote._id);
     if (success) {
       setOneNote(null);
@@ -37,6 +61,22 @@ function NoteView() {
     } else {
       showAlert("Failed to delete note. Please try again.", "danger");
     }
+  };
+
+  const handleDeleteClick = () => {
+    if (!confirmingDelete) {
+      setConfirmingDelete(true);
+      revertTimerRef.current = setTimeout(() => {
+        setConfirmingDelete(false);
+      }, CONFIRM_REVERT_MS);
+      return;
+    }
+    handleDelete();
+  };
+
+  const handleCancelDelete = () => {
+    clearTimeout(revertTimerRef.current);
+    setConfirmingDelete(false);
   };
 
   const updateNote = (currentNote) => {
@@ -273,17 +313,38 @@ function NoteView() {
             )}
 
             <div className="note-actions">
-              <button
-                className="btn btn-sm btn-secondary note-action-btn"
-                onClick={() => updateNote(oneNote)}
-              >
-                <FaPen /> Update
-              </button>
+              {confirmingDelete ? (
+                <button
+                  className="btn btn-sm btn-secondary note-action-btn"
+                  onClick={handleCancelDelete}
+                  aria-label="Cancel delete"
+                  title="Cancel"
+                >
+                  <FaTimes /> Cancel
+                </button>
+              ) : (
+                <button
+                  className="btn btn-sm btn-secondary note-action-btn"
+                  onClick={() => updateNote(oneNote)}
+                >
+                  <FaPen /> Update
+                </button>
+              )}
               <button
                 className="btn btn-sm btn-danger note-action-btn"
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
+                aria-label={
+                  confirmingDelete
+                    ? `Confirm delete of note titled ${oneNote.title}`
+                    : `Delete note titled ${oneNote.title}`
+                }
+                title={
+                  confirmingDelete
+                    ? "Click again to permanently delete this note"
+                    : "Delete note"
+                }
               >
-                <FaTrash /> Delete
+                <FaTrash /> {confirmingDelete ? "Confirm delete?" : "Delete"}
               </button>
             </div>
 

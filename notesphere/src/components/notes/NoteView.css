@@ -87,6 +87,14 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  /* "Confirm delete?" is much wider than the other labels this button
+     cycles through ("Delete", "Update", "Cancel"). .note-actions already
+     wraps to a new line if a pair doesn't fit, but without this the flex
+     item could still be squeezed narrower than its label first, breaking
+     the text mid-word before wrapping ever kicks in (same issue fixed for
+     the note-list cards in Notesitems.css). */
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .note-action-btn svg { font-size: 0.82em; }
 
