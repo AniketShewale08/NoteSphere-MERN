@@ -88,10 +88,24 @@
   left: 16px;
   right: 16px;
 }
+/* Flex items shrink below their content size by default (min-width:auto),
+   which is what let the "Cancel" label get squeezed onto two lines mid-word
+   once the row ran low on space. white-space stops any line break in the
+   label; flex-shrink:0 is the required partner rule — without it the box
+   would still be forced narrower than the now-unbreakable text and the
+   label would overflow into its sibling button instead of wrapping. The
+   worst-case pairing is "Cancel" + "Confirm delete?" (the longest label),
+   at roughly 71px + 8px gap + 123px = ~202px of content. The narrowest
+   card the fluid grid can ever produce is a 260px track (see Notes.css's
+   minmax(min(260px, 100%), 1fr)); even there, 260px minus this row's
+   16px/12px insets still leaves 228px-236px available — comfortably more
+   than the ~202px needed. */
 .note-item .card-actions button {
   padding: 6px 14px;
   font-size: 0.82rem;
   min-height: 32px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Responsive — progressively denser as the grid track narrows. width is
