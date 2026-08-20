@@ -66,6 +66,25 @@
   box-shadow: 0 4px 12px -5px rgba(139, 92, 246, 0.7);
 }
 
+/* Created-date line. Deliberately placed here — a normal-flow item ABOVE
+   .card-text (the flex-grow item, see below) rather than after it or inside
+   the absolute .card-actions row. .card-text is what absorbs any leftover
+   vertical space in the card, so a fixed-height item placed before it only
+   eats into that slack; it never pushes into (or shrinks) the bottom
+   clearance reserved by .card-body's padding-bottom for .card-actions.
+   That means the bottom-clearance arithmetic documented further down is
+   completely unaffected by this rule and needed no changes. Named
+   .card-date (not .note-date) to avoid colliding with the unrelated
+   .note-date rule in NoteView.css — both stylesheets are global. */
+.note-item .card-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
 .note-item .card-text {
   font-size: 0.95rem;
   color: var(--muted);
@@ -117,6 +136,7 @@
   .note-item .card { min-height: 180px; }
   .note-item .card-body { padding: 12px 12px 56px; }
   .note-item .card-title { font-size: 1.05rem; }
+  .note-item .card-date { font-size: 0.72rem; margin-top: 4px; }
   .note-item .card-text { font-size: 0.85rem; }
   .note-item .card-actions { bottom: 14px; left: 12px; right: 12px; }
 }

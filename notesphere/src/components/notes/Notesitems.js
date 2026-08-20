@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import noteContext from "../../context/notes/noteContext";
 import alertContext from "../../context/alert/alertContext";
+import { FaRegClock } from "react-icons/fa";
 import {
   TITLE_TRUNCATE_LIMIT,
   DESCRIPTION_TRUNCATE_LIMIT,
@@ -79,6 +80,16 @@ const Notesitems = (props) => {
           >
             {note.tag}
           </p>
+          {note.date && (
+            <p className="card-date">
+              <FaRegClock />
+              {new Date(note.date).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </p>
+          )}
           <p className="card-text">
             {note.description.length > DESCRIPTION_TRUNCATE_LIMIT
               ? `${note.description.slice(0, DESCRIPTION_TRUNCATE_LIMIT - 3)}...`
