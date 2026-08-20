@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import alertContext from "../../context/alert/alertContext";
 import API_URL from "../../config";
 import "./Login.css";
@@ -8,6 +9,7 @@ const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false); // Loading state
   const [errorMessage, setErrorMessage] = useState(""); // Error message state
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const context = useContext(alertContext);
   const { showAlert } = context;
@@ -75,15 +77,26 @@ const Login = () => {
             <label htmlFor="password" className="form-label mt-1">
               Password
             </label>
-            <input
-              type="password"
-              className="form-control"
-              id="password"
-              name="password"
-              onChange={onChange}
-              value={credentials.password}
-              required
-            />
+            <div className="password-field">
+              <input
+                type={showPassword ? "text" : "password"}
+                className="form-control"
+                id="password"
+                name="password"
+                onChange={onChange}
+                value={credentials.password}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
           <button
             type="submit"

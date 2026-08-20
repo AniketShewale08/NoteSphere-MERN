@@ -48,6 +48,63 @@
   color: #475569;
 }
 
+/* Label + live character-counter on the same line. Title/description have
+   no hard input limit (see AddNotes.js) — a note can be saved at any
+   length. TITLE_TRUNCATE_LIMIT / DESCRIPTION_TRUNCATE_LIMIT (src/constants.js)
+   only describe how much text the notes-list card preview shows before
+   truncating with "...". The counter's amber warning fires once the user
+   goes past that preview limit (count > max), and the .field-info-note
+   below explains why, so going "over" reads as a helpful heads-up rather
+   than a blocked/invalid input. */
+.add-note-section .field-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 0.35rem;
+}
+.add-note-section .char-counter {
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: color 0.25s var(--ease);
+}
+.add-note-section .char-counter-warning {
+  color: #b45309;
+  font-weight: 600;
+}
+:root[data-theme="dark"] .add-note-section .char-counter-warning {
+  color: #fbbf24;
+}
+
+/* Informational (not error) hint shown once a field passes its preview
+   truncation limit. Deliberately styled with the brand indigo token
+   instead of Bootstrap's red .invalid-feedback — this never blocks
+   submission, it just explains what the notes-list card preview will do.
+   Always rendered (even with empty text) so its box can smoothly grow
+   in/out via max-height instead of yanking the Tag field below it up or
+   down the instant the limit is crossed. */
+.add-note-section .field-info-note {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin: 0;
+  padding: 0 10px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--indigo);
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: var(--radius-sm);
+  transition: max-height 0.3s var(--ease), opacity 0.25s var(--ease),
+    margin-top 0.25s var(--ease), padding 0.25s var(--ease);
+}
+.add-note-section .field-info-note.is-visible {
+  max-height: 70px;
+  opacity: 1;
+  margin-top: 6px;
+  padding: 6px 10px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .add-note-section { padding: 22px 18px; }

@@ -20,6 +20,9 @@ const Notes = () => {
 
   const [search, setSearch] = useState("");
   const [filteredNotes, setFilteredNotes] = useState([]);
+  // Tracks the initial fetch only, so the empty-state message doesn't flash
+  // before getNotes() has a chance to resolve.
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -44,15 +47,19 @@ const Notes = () => {
       navigate("/login");
       return;
     }
-    getNotes().catch((err) => {
-      // Only bounce to login when the token is actually invalid/expired,
-      // not on a transient network error.
-      if (err.message === "Unauthorized") {
-        navigate("/login");
-      } else {
-        console.error("Error fetching notes:", err.message);
-      }
-    });
+    getNotes()
+      .catch((err) => {
+        // Only bounce to login when the token is actually invalid/expired,
+        // not on a transient network error.
+        if (err.message === "Unauthorized") {
+          navigate("/login");
+        } else {
+          console.error("Error fetching notes:", err.message);
+        }
+      })
+      .finally(() => {
+        setIsInitialLoading(false);
+      });
   }, [getNotes, navigate]);
 
   return (
@@ -83,10 +90,12 @@ const Notes = () => {
               />
             </div>
           </div>
-          <div 
+          <div
             className={`note-grid ${filteredNotes && filteredNotes.length === 0 ? 'no-notes' : ''}`}
           >
-            {filteredNotes && filteredNotes.length > 0 ? (
+            {isInitialLoading ? (
+              <div className="empty-notes-message">Loading notes...</div>
+            ) : filteredNotes && filteredNotes.length > 0 ? (
               filteredNotes.map((note) => (
                 <div className="note-item" key={note._id}>
                   <Notesitems note={note} />

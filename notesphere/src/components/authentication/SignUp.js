@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import alertContext from "../../context/alert/alertContext";
 import API_URL from "../../config";
 import BrandLogo from "../common/BrandLogo";
@@ -15,6 +16,23 @@ const SignUp = () => {
     password: "",
     cpassword: "",
   });
+  const [loading, setLoading] = useState(false);
+  // Each password field toggles its own visibility independently, so
+  // checking the password doesn't force the confirm field to reveal too.
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCPassword, setShowCPassword] = useState(false);
+
+  // Live validation feedback — recalculated on every keystroke so the user
+  // sees the problem before hitting submit, not just after.
+  const passwordError =
+    credentials.password.length > 0 && credentials.password.length < 6
+      ? "Password must be at least 6 characters long"
+      : "";
+  const cpasswordError =
+    credentials.cpassword.length > 0 &&
+    credentials.password !== credentials.cpassword
+      ? "Passwords don't match"
+      : "";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +45,7 @@ const SignUp = () => {
       showAlert("Password must be at least 6 characters long", "danger");
       return;
     }
+    setLoading(true);
     try {
       const response = await fetch(
         `${API_URL}/api/auth/createuser`,
@@ -51,6 +70,8 @@ const SignUp = () => {
       }
     } catch (error) {
       showAlert("Something went wrong. Please try again later.", "danger");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,34 +120,85 @@ const SignUp = () => {
                 <label htmlFor="password" className="form-label">
                   Password
                 </label>
-                <input
-                  type="password"
-                  className="form-control signup-input"
-                  name="password"
-                  id="password"
-                  onChange={onChange}
-                  minLength={6}
-                  required
-                />
+                <div className="password-field">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className={`form-control signup-input${
+                      passwordError ? " is-invalid" : ""
+                    }`}
+                    name="password"
+                    id="password"
+                    onChange={onChange}
+                    minLength={6}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    aria-pressed={showPassword}
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+                {/* Hint shows before/while typing so the requirement is
+                    visible up front; once the live error fires it takes
+                    over that space instead of stacking both messages. */}
+                {passwordError ? (
+                  <div className="invalid-feedback d-block">
+                    {passwordError}
+                  </div>
+                ) : (
+                  <small className="form-text password-hint">
+                    At least 6 characters
+                  </small>
+                )}
               </div>
 
               <div className="mb-1">
                 <label htmlFor="cpassword" className="form-label">
                   Confirm Password
                 </label>
-                <input
-                  type="password"
-                  className="form-control signup-input"
-                  name="cpassword"
-                  id="cpassword"
-                  onChange={onChange}
-                  minLength={6}
-                  required
-                />
+                <div className="password-field">
+                  <input
+                    type={showCPassword ? "text" : "password"}
+                    className={`form-control signup-input${
+                      cpasswordError ? " is-invalid" : ""
+                    }`}
+                    name="cpassword"
+                    id="cpassword"
+                    onChange={onChange}
+                    minLength={6}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowCPassword((prev) => !prev)}
+                    aria-label={
+                      showCPassword ? "Hide password" : "Show password"
+                    }
+                    aria-pressed={showCPassword}
+                  >
+                    {showCPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+                {cpasswordError && (
+                  <div className="invalid-feedback d-block">
+                    {cpasswordError}
+                  </div>
+                )}
               </div>
 
-              <button type="submit" className="signup-btn btn btn-primary my-2">
-                Sign Up
+              <button
+                type="submit"
+                className="signup-btn btn btn-primary my-2"
+                disabled={loading}
+              >
+                {loading ? "Signing up..." : "Sign Up"}
               </button>
             </form>
           </div>

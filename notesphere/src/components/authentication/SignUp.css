@@ -61,6 +61,65 @@
   box-shadow: var(--shadow-glow);
 }
 
+/* Password show/hide toggle.
+   Bootstrap adds its own background-image (the small invalid icon) and a
+   padding-right to .form-control.is-invalid — both would collide with the
+   toggle button sitting in the same corner, so both are neutralized here.
+   `!important` matches the existing `.input-with-icon input` precedent in
+   Notes.css, which overrides the same Bootstrap defaults for the same
+   icon-in-input layout. */
+.password-field {
+  position: relative;
+}
+.password-field .form-control {
+  padding-right: 56px !important;
+}
+.password-field .form-control.is-invalid {
+  background-image: none !important;
+}
+/* Scoped as `.password-field .password-toggle-btn` (0,2,0), matching the
+   hardened rule in Login.css, so no generic single-class `button` rule can
+   ever out-specificity it and stretch/relocate the icon again. Width/height/
+   padding/margin are explicit for the same reason. 44x44 tap target, ~16px
+   icon glyph (inherited font-size, untouched). */
+.password-field .password-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.password-field .password-toggle-btn:hover {
+  color: var(--indigo);
+  background: rgba(99, 102, 241, 0.08);
+}
+.password-field .password-toggle-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-glow);
+  color: var(--indigo);
+}
+
+/* Password requirement hint — visible before/while typing, standing in for
+   the invalid-feedback error while there is none (see SignUp.js). */
+.password-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
 .signup-btn {
   display: block;
   width: 100%;
