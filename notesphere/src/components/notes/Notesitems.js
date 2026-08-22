@@ -86,11 +86,15 @@ const Notesitems = (props) => {
     <>
       <div className="card">
         <div className="card-body">
-          <h4 className="card-title">
+          {/* h3, not h4 — this page's h1 is "Add Notes" and its h2 is "View
+              Notes" (see AddNotes.js/Notes.js), so a card title nested under
+              those is h3, not a skipped-level h4. Selector in Notesitems.css
+              targets by class (.card-title), so this needed no CSS change. */}
+          <h3 className="card-title">
             {note.title.length > TITLE_TRUNCATE_LIMIT
               ? `${note.title.slice(0, TITLE_TRUNCATE_LIMIT - 3)}...`
               : note.title}
-          </h4>
+          </h3>
           <p
             className="fa-solid card-subtitle my-1 card-tag"
             style={{ color: "blue" }}

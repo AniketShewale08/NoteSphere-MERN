@@ -99,6 +99,11 @@
      the note-list cards in Notesitems.css). */
   white-space: nowrap;
   flex-shrink: 0;
+  /* 44px accessible touch-target minimum — Bootstrap's .btn-sm padding alone
+     only gets this to ~29-31px. Missed in the original touch-target pass
+     (which covered Notesitems.css cards and the modal footer) since this is
+     a third, separate button group. */
+  min-height: 44px;
 }
 .note-action-btn svg { font-size: 0.82em; }
 
