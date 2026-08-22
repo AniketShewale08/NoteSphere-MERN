@@ -63,11 +63,18 @@ app.use((req, res) => {
   res.status(404).json({ success: false, error: "Route not found." });
 });
 
-// Central error handler — always returns a generic message, never a stack trace.
+// Central error handler — respects a thrown error's real status (e.g. body-parser's 413
+// for oversized payloads) instead of always forcing 500, but never leaks internals. Only
+// 413 gets its specific message passed through (safe, non-revealing, and what payload
+// limits are actually for); every other status — 4xx or 5xx — gets a generic message so
+// we never leak parser/library internals (e.g. a raw "Unexpected token" JSON parse error).
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err.message);
-  res.status(500).json({ success: false, error: "Internal server error." });
+  const status = err.status || err.statusCode || 500;
+  const error =
+    status === 413 ? "Request body too large." : "Internal server error.";
+  res.status(status).json({ success: false, error });
 });
 
 app.listen(port, () => {

@@ -51,7 +51,8 @@ router.post("/createuser", authLimiter, [
 
           const data = {
             user :{
-                id : user.id
+                id : user.id,
+                tokenVersion: user.tokenVersion
             }
           }
           // JWT authentication
@@ -119,7 +120,8 @@ router.post('/login', authLimiter, [
         // Get the authenticated token.
         const data = {
             user:{
-                id:user.id
+                id:user.id,
+                tokenVersion: user.tokenVersion
             }
         };
         const authenticate = jwt.sign(data, process.env.JWT_SECRET, {
@@ -215,6 +217,10 @@ router.post('/reset-password/:token', authLimiter, [
         user.password = await bcrypt.hash(req.body.password, salt);
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
+        // Bump tokenVersion so every JWT issued before this reset — including one an
+        // attacker may have obtained — stops working immediately, rather than staying
+        // valid for up to 7 more days. fetchuser checks this on every request.
+        user.tokenVersion = (user.tokenVersion || 0) + 1;
         await user.save();
 
         // Notify the user that their password changed (security heads-up). Fire-and-forget —
@@ -239,7 +245,8 @@ router.post('/reset-password/:token', authLimiter, [
 
 
 // POST request /getuser : To get a specific user
-router.post('/getuser', fetchuser, async (req, res)=> {
+// authLimiter added for consistency — every other route in this file already has it.
+router.post('/getuser', authLimiter, fetchuser, async (req, res)=> {
 
     try{
         const userId = req.user.id;

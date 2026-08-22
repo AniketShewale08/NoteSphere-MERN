@@ -65,6 +65,13 @@ const SignUp = () => {
       if (json.success) {
         showAlert("SignUp Successfully.", "success");
         navigate("/login");
+      } else if (response.status === 429) {
+        // Rate-limited — distinct from a normal signup failure (e.g. duplicate email),
+        // so don't tell the user their credentials are the problem.
+        showAlert(
+          json.error || "Too many attempts. Please try again in a few minutes.",
+          "warning"
+        );
       } else {
         showAlert("Credentials fail", "danger");
       }
@@ -131,6 +138,8 @@ const SignUp = () => {
                     onChange={onChange}
                     minLength={6}
                     required
+                    aria-describedby="passwordHint"
+                    aria-invalid={passwordError ? "true" : "false"}
                   />
                   <button
                     type="button"
@@ -148,11 +157,19 @@ const SignUp = () => {
                     visible up front; once the live error fires it takes
                     over that space instead of stacking both messages. */}
                 {passwordError ? (
-                  <div className="invalid-feedback d-block">
+                  <div
+                    id="passwordHint"
+                    className="invalid-feedback d-block"
+                    aria-live="polite"
+                  >
                     {passwordError}
                   </div>
                 ) : (
-                  <small className="form-text password-hint">
+                  <small
+                    id="passwordHint"
+                    className="form-text password-hint"
+                    aria-live="polite"
+                  >
                     At least 6 characters
                   </small>
                 )}
@@ -173,6 +190,8 @@ const SignUp = () => {
                     onChange={onChange}
                     minLength={6}
                     required
+                    aria-describedby={cpasswordError ? "cpasswordHint" : undefined}
+                    aria-invalid={cpasswordError ? "true" : "false"}
                   />
                   <button
                     type="button"
@@ -187,7 +206,11 @@ const SignUp = () => {
                   </button>
                 </div>
                 {cpasswordError && (
-                  <div className="invalid-feedback d-block">
+                  <div
+                    id="cpasswordHint"
+                    className="invalid-feedback d-block"
+                    aria-live="polite"
+                  >
                     {cpasswordError}
                   </div>
                 )}
@@ -207,9 +230,12 @@ const SignUp = () => {
           <div className="col-md-6 signup-right text-center">
             <h2>
               Welcome to{" "}
-              <div>
+              {/* span, not div — a heading can only contain phrasing (inline)
+                  content; display:block here gets the same "logo on its own
+                  line" look without nesting a block element inside the h2. */}
+              <span style={{ display: "block" }}>
                 <BrandLogo nSize={50} restSize={20} gradient />
-              </div>
+              </span>
             </h2>
 
             <p className="mt-4" style={{ fontSize: "1.2rem" }}>

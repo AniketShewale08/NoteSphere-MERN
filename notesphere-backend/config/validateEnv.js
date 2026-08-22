@@ -2,6 +2,15 @@
 // starts in a broken state (e.g. jwt.sign throwing on every request in production).
 const validateEnv = () => {
   const required = ["MONGODB_URL", "JWT_SECRET"];
+
+  // In production, real SMTP credentials are required too. Without this check, a missing
+  // EMAIL_* var in production silently falls back to a throwaway Ethereal test account —
+  // reset emails are never delivered, and a preview URL containing the raw password-reset
+  // token gets logged to stdout instead (see config/email.config.js).
+  if (process.env.NODE_ENV === "production") {
+    required.push("EMAIL_HOST", "EMAIL_USER", "EMAIL_PASS");
+  }
+
   const missing = required.filter((key) => !process.env[key]);
 
   if (missing.length > 0) {

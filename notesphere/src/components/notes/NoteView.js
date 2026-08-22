@@ -1,4 +1,5 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import noteContext from "../../context/notes/noteContext";
 import "./NoteView.css";
 import {
@@ -27,6 +28,7 @@ function NoteView() {
   const refClose = useRef(null);
   const { oneNote, setOneNote, deleteNote, editNote } = context;
   const { showAlert } = useContext(alertContext);
+  const navigate = useNavigate();
   const [currentImg, setCurrentImg] = useState("imgage1");
   const [note, setNote] = useState({
     id: "",
@@ -54,12 +56,20 @@ function NoteView() {
   const handleDelete = async () => {
     clearTimeout(revertTimerRef.current);
     setConfirmingDelete(false);
-    const success = await deleteNote(oneNote._id);
-    if (success) {
-      setOneNote(null);
-      showAlert("Note Deleted Successfully", "success");
-    } else {
-      showAlert("Failed to delete note. Please try again.", "danger");
+    try {
+      const success = await deleteNote(oneNote._id);
+      if (success) {
+        setOneNote(null);
+        showAlert("Note Deleted Successfully", "success");
+      } else {
+        showAlert("Failed to delete note. Please try again.", "danger");
+      }
+    } catch (error) {
+      if (error.message === "Unauthorized") {
+        navigate("/login");
+      } else {
+        showAlert("Failed to delete note. Please try again.", "danger");
+      }
     }
   };
 
@@ -91,23 +101,31 @@ function NoteView() {
 
   const handleClick = async () => {
     // Only reflect the edit in the UI after the server confirms it.
-    const success = await editNote(
-      note.id,
-      note.etitle,
-      note.edescription,
-      note.etag
-    );
-    if (success) {
-      setOneNote({
-        ...oneNote,
-        title: note.etitle,
-        description: note.edescription,
-        tag: note.etag,
-      });
-      showAlert("Note Updated Successfully", "success");
-      refClose.current.click();
-    } else {
-      showAlert("Failed to update note. Please try again.", "danger");
+    try {
+      const success = await editNote(
+        note.id,
+        note.etitle,
+        note.edescription,
+        note.etag
+      );
+      if (success) {
+        setOneNote({
+          ...oneNote,
+          title: note.etitle,
+          description: note.edescription,
+          tag: note.etag,
+        });
+        showAlert("Note Updated Successfully", "success");
+        refClose.current.click();
+      } else {
+        showAlert("Failed to update note. Please try again.", "danger");
+      }
+    } catch (error) {
+      if (error.message === "Unauthorized") {
+        navigate("/login");
+      } else {
+        showAlert("Failed to update note. Please try again.", "danger");
+      }
     }
   };
 
@@ -292,14 +310,13 @@ function NoteView() {
               <FaArrowLeft />
             </button>
 
-            <h1 className="text-center my-2">{oneNote.title.length > 24
-              ? `${oneNote.title.slice(0, 21)}...`
-              : oneNote.title}</h1>
-            <h4 className="text-center my-2">
-            {oneNote.tag?.length > 24
-              ? `${oneNote.tag.slice(0, 21)}...`
-              : oneNote.tag}
-            </h4>
+            {/* Full text, never truncated — this IS the "open the note" view the
+                app's own hint text (AddNotes.js / the edit modal) promises full
+                text is always visible in. Truncation only ever belongs on the
+                note-LIST card preview (Notesitems.js), which uses the same
+                shared TITLE_TRUNCATE_LIMIT/DESCRIPTION_TRUNCATE_LIMIT constants. */}
+            <h2 className="text-center my-2">{oneNote.title}</h2>
+            <p className="note-tag text-center my-2">{oneNote.tag}</p>
 
             {oneNote.date && (
               <p className="note-date">

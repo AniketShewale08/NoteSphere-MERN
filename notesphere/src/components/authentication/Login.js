@@ -38,6 +38,12 @@ const Login = () => {
         localStorage.setItem("token", json.authenticate);
         showAlert("Login Successfully", "success");
         navigate("/");
+      } else if (response.status === 429) {
+        // Rate-limited — a different situation from a wrong password, and showing the
+        // wrong message here just encourages more retries (or an unnecessary reset).
+        setErrorMessage(
+          json.error || "Too many attempts. Please try again in a few minutes."
+        );
       } else {
         setErrorMessage("Invalid credentials, please try again.");
       }
@@ -56,7 +62,11 @@ const Login = () => {
       <div className="login-form">
         <h2>Login</h2>
         {/* Display error message if any */}
-        {errorMessage && <div className="alert-danger">{errorMessage}</div>}
+        {errorMessage && (
+          <div className="alert-danger" role="alert">
+            {errorMessage}
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="mb-1">
             <label htmlFor="email" className="form-label">

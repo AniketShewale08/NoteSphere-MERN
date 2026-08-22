@@ -74,7 +74,11 @@ const ResetPassword = () => {
     <div className="login-container d-flex align-items-center">
       <div className="login-form">
         <h2>Reset Password</h2>
-        {errorMessage && <div className="alert-danger">{errorMessage}</div>}
+        {errorMessage && (
+          <div className="alert-danger" role="alert">
+            {errorMessage}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-1">

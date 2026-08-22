@@ -76,7 +76,19 @@ const NoteState = (props) => {
     [fetchNotesPage, isLoadingMore, hasMore, nextCursor]
   );
 
+  // Shared by every note-mutating call below: on a 401 the token is dead, so clear it and
+  // throw a recognizable error the caller can catch to redirect to /login — the same
+  // contract fetchNotesPage above already uses for the initial notes fetch.
+  const throwIfUnauthorized = (response) => {
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      throw new Error("Unauthorized");
+    }
+  };
+
   // Add a note — returns true on success, false on failure so callers can gate feedback.
+  // Throws "Unauthorized" (rather than returning false) on an expired/invalid session, so
+  // the caller can redirect to login instead of showing a generic "failed to add" message.
   const addNote = async (title, description, tag) => {
     try {
       const response = await fetch(`${host}/api/notes/addnotes`, {
@@ -87,22 +99,35 @@ const NoteState = (props) => {
         },
         body: JSON.stringify({ title, description, tag }),
       });
+      throwIfUnauthorized(response);
       if (!response.ok) {
         throw new Error("Failed to add a note");
       }
       const json = await response.json();
-      setNotes((prevNotes) => [...prevNotes, json.savedNote]);
+      // Prepend, not append — the API serves notes newest-first, so a freshly added
+      // note belongs at the top of the list, not the bottom.
+      setNotes((prevNotes) => [json.savedNote, ...prevNotes]);
       return true;
     } catch (error) {
+      if (error.message === "Unauthorized") {
+        throw error;
+      }
       console.error("Error adding note:", error.message);
       return false;
     }
   };
 
   // Delete a note — optimistic update with rollback; returns true on success.
+  // Uses the functional setState form throughout (never reads the `notes` closure directly)
+  // so a rapid double-delete or a concurrent add/edit can't be discarded by a stale snapshot.
   const deleteNote = async (id) => {
-    const previousNotes = notes;
-    setNotes(notes.filter((note) => note._id !== id));
+    let removedNote;
+    let removedIndex;
+    setNotes((prevNotes) => {
+      removedIndex = prevNotes.findIndex((note) => note._id === id);
+      removedNote = prevNotes[removedIndex];
+      return prevNotes.filter((note) => note._id !== id);
+    });
 
     try {
       const response = await fetch(`${host}/api/notes/deletenote/${id}`, {
@@ -112,13 +137,25 @@ const NoteState = (props) => {
           "auth-token": localStorage.getItem("token"),
         },
       });
+      throwIfUnauthorized(response);
       if (!response.ok) {
         throw new Error("Failed to delete the note");
       }
       return true;
     } catch (error) {
+      if (error.message === "Unauthorized") {
+        throw error;
+      }
       console.error("Error deleting note:", error.message);
-      setNotes(previousNotes);
+      // Roll back with a functional update, re-inserting at the original position, instead
+      // of restoring a stale full-array snapshot that could discard other concurrent changes.
+      if (removedNote) {
+        setNotes((prevNotes) => {
+          const next = [...prevNotes];
+          next.splice(Math.min(removedIndex, next.length), 0, removedNote);
+          return next;
+        });
+      }
       return false;
     }
   };
@@ -134,6 +171,7 @@ const NoteState = (props) => {
         },
         body: JSON.stringify({ title, description, tag }),
       });
+      throwIfUnauthorized(response);
       if (!response.ok) {
         throw new Error("Failed to update the note");
       }
@@ -145,6 +183,9 @@ const NoteState = (props) => {
       );
       return true;
     } catch (error) {
+      if (error.message === "Unauthorized") {
+        throw error;
+      }
       console.error("Error updating note:", error.message);
       return false;
     }
@@ -161,12 +202,16 @@ const NoteState = (props) => {
         },
       });
 
+      throwIfUnauthorized(response);
       if (!response.ok) {
         throw new Error("Failed to get a note");
       }
       const json = await response.json();
       setOneNote(json.note);
     } catch (error) {
+      if (error.message === "Unauthorized") {
+        throw error;
+      }
       console.error("Error getting note:", error.message);
     }
   };

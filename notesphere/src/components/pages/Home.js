@@ -44,7 +44,7 @@ export default function Home() {
                       <div className="feature-icon mb-3">
                         <i className="fas fa-folder-open fa-3x text-primary"></i>
                       </div>
-                      <h4>Organize Notes Effortlessly</h4>
+                      <h3 className="fs-4">Organize Notes Effortlessly</h3>
                       <p className="text-muted">
                         Create, categorize, and manage all your notes in one place.
                       </p>
@@ -57,7 +57,7 @@ export default function Home() {
                       <div className="feature-icon mb-3">
                         <i className="fas fa-tags fa-3x text-success"></i>
                       </div>
-                      <h4>Add Tags for Quick Access</h4>
+                      <h3 className="fs-4">Add Tags for Quick Access</h3>
                       <p className="text-muted">
                         Filter and find your notes easily with tags.
                       </p>
@@ -70,7 +70,7 @@ export default function Home() {
                       <div className="feature-icon mb-3">
                         <i className="fas fa-lock fa-3x text-danger"></i>
                       </div>
-                      <h4>Secure and Private</h4>
+                      <h3 className="fs-4">Secure and Private</h3>
                       <p className="text-muted">
                         Your data is protected with industry-standard encryption.
                       </p>

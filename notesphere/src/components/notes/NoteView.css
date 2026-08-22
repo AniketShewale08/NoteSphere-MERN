@@ -27,14 +27,18 @@
   padding: 10px 14px 6px;
   animation: scaleIn 0.4s var(--ease) both;
 }
-.note-content h1 {
+/* Heading level here is h2, not h1 — this page's own single h1 is
+   "Add Notes" (AddNotes.js), which precedes this component in DOM order. */
+.note-content h2 {
   font-size: 1.9rem;
   font-weight: 700;
   margin: 4px 44px 8px;
   color: var(--text);
   word-break: break-word;
 }
-.note-content h4 {
+/* A tag pill, not a heading — renders as a <p>, not h3/h4, so it never
+   introduces a heading-level skip after the h2 title above. */
+.note-content .note-tag {
   display: inline-block;
   font-size: 0.95rem !important;
   font-weight: 600;
@@ -65,8 +69,8 @@
   top: 14px;
   left: 14px;
   z-index: 3;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0 !important;
   display: inline-grid;
   place-items: center;
@@ -95,6 +99,11 @@
      the note-list cards in Notesitems.css). */
   white-space: nowrap;
   flex-shrink: 0;
+  /* 44px accessible touch-target minimum — Bootstrap's .btn-sm padding alone
+     only gets this to ~29-31px. Missed in the original touch-target pass
+     (which covered Notesitems.css cards and the modal footer) since this is
+     a third, separate button group. */
+  min-height: 44px;
 }
 .note-action-btn svg { font-size: 0.82em; }
 
