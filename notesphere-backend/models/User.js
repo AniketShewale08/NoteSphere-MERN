@@ -26,6 +26,14 @@ const UserSchema = new Schema({
     },
     resetPasswordExpires:{
         type:Date
+    },
+    // Incremented every time the password is reset. Embedded in each JWT at
+    // sign time (see routes/auth.js) and checked on every request (see
+    // middleware/fetchuser.js) — a mismatch means the token was issued before
+    // the most recent reset, so it's rejected even though it hasn't expired yet.
+    tokenVersion:{
+        type:Number,
+        default:0
     }
 });
 

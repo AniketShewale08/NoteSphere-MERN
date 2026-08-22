@@ -47,12 +47,39 @@ const createEtherealTransporter = async () => {
 let transporterPromise = null;
 
 // Returns a cached, ready-to-use Nodemailer transporter.
-// Uses real SMTP when configured, otherwise an Ethereal test account.
+// Uses real SMTP when configured, otherwise an Ethereal test account — but never in
+// production. validateEnv() already requires real SMTP credentials whenever
+// NODE_ENV=production, so the production-refusal branch below only ever fires as
+// defense-in-depth: if that check is ever loosened or bypassed, a production server must
+// fail loudly instead of silently routing real password-reset tokens through a throwaway
+// test inbox. A failure here is never cached — only a successfully created transporter
+// is — so a transient failure (e.g. Ethereal's account-creation network call) doesn't
+// permanently wedge every future email send behind one bad first attempt.
 export const getTransporter = () => {
-  if (!transporterPromise) {
-    transporterPromise = isSmtpConfigured()
-      ? Promise.resolve(createSmtpTransporter())
-      : createEtherealTransporter();
+  if (transporterPromise) {
+    return transporterPromise;
   }
-  return transporterPromise;
+
+  const attempt = (async () => {
+    if (isSmtpConfigured()) {
+      return createSmtpTransporter();
+    }
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "No SMTP configured in production — refusing to fall back to a test transport."
+      );
+    }
+    return createEtherealTransporter();
+  })();
+
+  transporterPromise = attempt;
+  attempt.catch(() => {
+    // Let the failure surface to this call's caller, but don't let it poison future
+    // calls — clear the cache so the next send attempt gets a fresh try.
+    if (transporterPromise === attempt) {
+      transporterPromise = null;
+    }
+  });
+
+  return attempt;
 };
