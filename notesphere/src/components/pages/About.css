@@ -74,7 +74,7 @@
 }
 .features-overview .col-md-4:hover i { transform: scale(1.12) rotate(-6deg); }
 
-.features-overview .col-md-4 h4 {
+.features-overview .col-md-4 h3 {
   font-size: 1.2rem;
   font-weight: 700;
   margin-top: 14px;

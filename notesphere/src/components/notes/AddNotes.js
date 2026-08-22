@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import noteContext from "../../context/notes/noteContext";
 import alertContext from "../../context/alert/alertContext";
 import {
@@ -10,6 +11,7 @@ import "./AddNotes.css";
 const AddNote = () => {
   const context = useContext(noteContext);
   const { showAlert } = useContext(alertContext);
+  const navigate = useNavigate();
 
   const { addNote } = context;
   const [note, setNote] = useState({ title: "", description: "", tag: "" });
@@ -28,6 +30,12 @@ const AddNote = () => {
       if (success) {
         showAlert("Note Added Successfully", "success");
         setNote({ title: "", description: "", tag: "" });
+      } else {
+        showAlert("Failed to add note. Please try again.", "danger");
+      }
+    } catch (error) {
+      if (error.message === "Unauthorized") {
+        navigate("/login");
       } else {
         showAlert("Failed to add note. Please try again.", "danger");
       }
@@ -52,7 +60,10 @@ const AddNote = () => {
       <div className="row">
         {/* Left Side: Add Notes */}
         <div className="col-12 add-note-section">
-          <h2 className="text-center mb-4">Add Notes</h2>
+          {/* This page's only h1 — first heading in DOM order on the notes
+              page (AddNotes, then NoteView, then the "View Notes" list all
+              nest under it as h2s). */}
+          <h1 className="text-center mb-4">Add Notes</h1>
           <form>
             <div className="mb-3">
               <div className="field-label-row">

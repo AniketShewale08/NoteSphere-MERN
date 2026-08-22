@@ -73,7 +73,7 @@ const Notes = () => {
         </div>
 
         <div className="viewNotes">
-          <h1 className="text-center" style={{fontWeight: "bold"}}>View Notes</h1>
+          <h2 className="text-center" style={{fontWeight: "bold"}}>View Notes</h2>
           <div className="search-container">
             <label htmlFor="search" className="text-center">
               Search Notes by Title or Tag
@@ -101,6 +101,15 @@ const Notes = () => {
                   <Notesitems note={note} />
                 </div>
               ))
+            ) : search ? (
+              // A zero-match search reads very differently from a genuinely empty
+              // account — say so, and flag when matches might still exist on a page
+              // that hasn't loaded yet (search only runs against notes already fetched).
+              <div className="empty-notes-message">
+                {hasMore
+                  ? `No matches for "${search}" in the notes loaded so far. Load more notes to keep searching.`
+                  : `No notes match "${search}".`}
+              </div>
             ) : (
               <div className="empty-notes-message">
                 No notes are available. Add some to get started!

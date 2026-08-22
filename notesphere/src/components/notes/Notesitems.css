@@ -39,7 +39,9 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 16px 16px 58px;
+  /* Bottom padding of 70px — see .card-actions button below for the clearance
+     math (bumped from 58px when the buttons grew to a 44px touch target). */
+  padding: 16px 16px 70px;
   height: 100%;
 }
 
@@ -95,8 +97,8 @@
 
 /* Actions pinned to the bottom. Insets match .card-body's horizontal
    padding so the buttons stay flush with the title/text above them.
-   Base clearance: bottom(16px) + button min-height(32px) = 48px reserved,
-   .card-body padding-bottom of 58px keeps a 10px buffer so .card-actions
+   Base clearance: bottom(16px) + button min-height(44px) = 60px reserved,
+   .card-body padding-bottom of 70px keeps a 10px buffer so .card-actions
    never overlaps .card-text (narrow-width clearance noted below). */
 .note-item .card-actions {
   display: flex;
@@ -122,19 +124,21 @@
 .note-item .card-actions button {
   padding: 6px 14px;
   font-size: 0.82rem;
-  min-height: 32px;
+  /* 44px — accessible minimum touch target (was 32px); see the clearance
+     math on .card-actions and .card-body above, both updated to match. */
+  min-height: 44px;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 /* Responsive — progressively denser as the grid track narrows. width is
    already fluid from the base rule above; only min-height/padding/type
-   scale down here. Bottom clearance: bottom(14px) + button min-height(32px)
-   = 46px reserved, .card-body padding-bottom of 56px keeps a 10px buffer
+   scale down here. Bottom clearance: bottom(14px) + button min-height(44px)
+   = 58px reserved, .card-body padding-bottom of 68px keeps a 10px buffer
    so .card-actions never overlaps .card-text. */
 @media (max-width: 576px) {
   .note-item .card { min-height: 180px; }
-  .note-item .card-body { padding: 12px 12px 56px; }
+  .note-item .card-body { padding: 12px 12px 68px; }
   .note-item .card-title { font-size: 1.05rem; }
   .note-item .card-date { font-size: 0.72rem; margin-top: 4px; }
   .note-item .card-text { font-size: 0.85rem; }

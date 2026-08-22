@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import noteContext from "../../context/notes/noteContext";
 import alertContext from "../../context/alert/alertContext";
 import { FaRegClock } from "react-icons/fa";
@@ -16,6 +17,7 @@ const Notesitems = (props) => {
   const context = useContext(noteContext);
   const { getOneNote, deleteNote, setOneNote } = context;
   const { showAlert } = useContext(alertContext);
+  const navigate = useNavigate();
   const { note } = props;
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -32,12 +34,20 @@ const Notesitems = (props) => {
   const handleDelete = async () => {
     clearTimeout(revertTimerRef.current);
     setConfirmingDelete(false);
-    const success = await deleteNote(note._id);
-    if (success) {
-      setOneNote(null);
-      showAlert("Note Deleted successfully", "success");
-    } else {
-      showAlert("Failed to delete note. Please try again.", "danger");
+    try {
+      const success = await deleteNote(note._id);
+      if (success) {
+        setOneNote(null);
+        showAlert("Note Deleted successfully", "success");
+      } else {
+        showAlert("Failed to delete note. Please try again.", "danger");
+      }
+    } catch (error) {
+      if (error.message === "Unauthorized") {
+        navigate("/login");
+      } else {
+        showAlert("Failed to delete note. Please try again.", "danger");
+      }
     }
   };
 
@@ -57,8 +67,15 @@ const Notesitems = (props) => {
     setConfirmingDelete(false);
   };
 
-  const handleGetNote = () => {
-    getOneNote(note._id);
+  const handleGetNote = async () => {
+    try {
+      await getOneNote(note._id);
+    } catch (error) {
+      if (error.message === "Unauthorized") {
+        navigate("/login");
+        return;
+      }
+    }
     const noteViewElement = document.getElementById("specific-note");
     if (noteViewElement) {
       noteViewElement.scrollIntoView({ behavior: "smooth" });

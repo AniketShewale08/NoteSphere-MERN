@@ -128,6 +128,14 @@
   margin-bottom: 14px;
   animation: fadeInUp 0.3s var(--ease) both;
 }
+/* The light-mode rose (#be123c) is too dark to read against this box's own
+   dark-mode background — lighten both the text and the tint so it stays at
+   a legible contrast instead of nearly disappearing. */
+:root[data-theme="dark"] .alert-danger {
+  color: #fda4af;
+  background: rgba(244, 63, 94, 0.18);
+  border-color: rgba(244, 63, 94, 0.4);
+}
 
 @media (max-width: 768px) {
   .login-form { padding: 28px 20px; }
