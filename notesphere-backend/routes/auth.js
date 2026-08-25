@@ -5,7 +5,7 @@ const router = express.Router();
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
 import fetchuser from '../middleware/fetchuser.js';
-import authLimiter from '../middleware/rateLimiter.js';
+import { authLimiter, apiLimiter } from '../middleware/rateLimiter.js';
 import { sendEmail } from '../services/emailService.js';
 import { buildWelcomeEmail } from '../templates/welcomeEmail.js';
 import { buildPasswordResetEmail } from '../templates/passwordResetEmail.js';
@@ -245,8 +245,10 @@ router.post('/reset-password/:token', authLimiter, [
 
 
 // POST request /getuser : To get a specific user
-// authLimiter added for consistency — every other route in this file already has it.
-router.post('/getuser', authLimiter, fetchuser, async (req, res)=> {
+// Moved to apiLimiter — this is an ordinary authenticated call (e.g. the
+// navbar's background profile backfill), not a brute-force-prone action
+// like login/signup, so it shouldn't share authLimiter's tighter budget.
+router.post('/getuser', apiLimiter, fetchuser, async (req, res)=> {
 
     try{
         const userId = req.user.id;
