@@ -36,6 +36,11 @@ const Login = () => {
 
       if (json.success) {
         localStorage.setItem("token", json.authenticate);
+        // Cached for the navbar avatar (initials + deterministic color) so it
+        // doesn't need its own API call on every page load. Kept in sync by
+        // Profile.js whenever the name is edited.
+        localStorage.setItem("userName", json.name || "");
+        localStorage.setItem("userEmail", credentials.email);
         showAlert("Login Successfully", "success");
         navigate("/");
       } else if (response.status === 429) {

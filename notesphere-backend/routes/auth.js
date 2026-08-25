@@ -1,5 +1,6 @@
 import express from 'express';
 import User from "../models/User.js";
+import Notes from "../models/Notes.js";
 import { body, validationResult } from 'express-validator';
 const router = express.Router();
 import bcrypt from 'bcryptjs';
@@ -260,5 +261,158 @@ router.post('/getuser', apiLimiter, fetchuser, async (req, res)=> {
         res.status(500).json({success:false, error:"Internal server error."})
     }
 })
+
+// GET request /api/auth/profile : personal info + note count for the profile page
+router.get('/profile', apiLimiter, fetchuser, async (req, res) => {
+
+    try{
+        const user = await User.findById(req.user.id)
+            .select("-password -resetPasswordToken -resetPasswordExpires -tokenVersion");
+        if (!user) {
+            return res.status(404).json({ success: false, error: "User not found." });
+        }
+
+        const notesCount = await Notes.countDocuments({ user: req.user.id });
+
+        res.json({ success: true, user, notesCount });
+    }
+    catch(error){
+        console.error("Error in profile:", error.message);
+        res.status(500).json({success:false, error:"Internal server error."})
+    }
+});
+
+// PUT request /api/auth/updateprofile : change the logged-in user's display name
+router.put('/updateprofile', apiLimiter, fetchuser, [
+    body("name").trim().isLength({ min: 3 }).withMessage("Name must be at least 3 character long.")
+], async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    try{
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: { name: req.body.name } },
+            { new: true }
+        ).select("-password -resetPasswordToken -resetPasswordExpires -tokenVersion");
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: "User not found." });
+        }
+
+        res.json({ success: true, user });
+    }
+    catch(error){
+        console.error("Error in updateprofile:", error.message);
+        res.status(500).json({success:false, error:"Internal server error."})
+    }
+});
+
+// PUT request /api/auth/changepassword : update the logged-in user's password,
+// given they already know their current one (distinct from the forgot-password
+// email flow, which is for when they don't).
+router.put('/changepassword', apiLimiter, fetchuser, [
+    body("currentPassword").exists().withMessage("Current password is required."),
+    body("newPassword").isLength({ min: 6 }).withMessage("New password must be at least 6 character long.")
+], async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    try{
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ success: false, error: "User not found." });
+        }
+
+        const passwordCompare = await bcrypt.compare(req.body.currentPassword, user.password);
+        if (!passwordCompare) {
+            return res.status(400).json({ success: false, error: "Current password is incorrect." });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(req.body.newPassword, salt);
+        // Bump tokenVersion just like the forgot-password reset flow does — this
+        // invalidates every existing token, including the one used for THIS
+        // request, so we sign and return a fresh one below rather than leaving
+        // the user logged out immediately after changing their own password.
+        user.tokenVersion = (user.tokenVersion || 0) + 1;
+        await user.save();
+
+        const data = {
+            user: {
+                id: user.id,
+                tokenVersion: user.tokenVersion
+            }
+        };
+        const authenticate = jwt.sign(data, process.env.JWT_SECRET, {
+            expiresIn: "7d",
+        });
+
+        // Security heads-up email, same as the forgot-password reset flow.
+        // Fire-and-forget — must never block or fail the password change itself.
+        try {
+            const { subject, html } = buildPasswordChangedEmail(user.name);
+            sendEmail({ to: user.email, subject, html }).then((result) => {
+                if (!result.success) {
+                    console.error(`[password-changed] email failed for ${user.email}: ${result.error}`);
+                }
+            });
+        } catch (err) {
+            console.error("[password-changed] unexpected error:", err.message);
+        }
+
+        res.json({ success: true, authenticate, message: "Password changed successfully." });
+    }
+    catch(error){
+        console.error("Error in changepassword:", error.message);
+        res.status(500).json({success:false, error:"Internal server error."})
+    }
+});
+
+// DELETE request /api/auth/deleteaccount : permanently delete the logged-in user's
+// account and every note they own. Requires the current password so this destructive,
+// irreversible action can't be triggered by anyone other than the account owner (e.g.
+// an unlocked device/session).
+router.delete('/deleteaccount', apiLimiter, fetchuser, [
+    body("password").exists().withMessage("Password is required to confirm account deletion.")
+], async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    try{
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ success: false, error: "User not found." });
+        }
+
+        const passwordCompare = await bcrypt.compare(req.body.password, user.password);
+        if (!passwordCompare) {
+            return res.status(400).json({ success: false, error: "Incorrect password." });
+        }
+
+        // Notes first, then the user document — so a failure mid-way never leaves
+        // orphaned notes pointing at a deleted user.
+        await Notes.deleteMany({ user: req.user.id });
+        await User.findByIdAndDelete(req.user.id);
+
+        res.json({ success: true, message: "Account deleted successfully." });
+    }
+    catch(error){
+        // Flagged distinctly since this runs after notes may already be gone — worth
+        // finding quickly in logs if the user-document delete itself ever fails.
+        console.error(`[CRITICAL] Error deleting account for user ${req.user.id}:`, error.message);
+        res.status(500).json({success:false, error:"Internal server error."})
+    }
+});
+
 
 export default router;
