@@ -190,19 +190,9 @@ function NoteView() {
             <div className="modal-body">
               <form>
                 <div className="mb-3">
-                  <div className="field-label-row">
-                    <label htmlFor="etitle" className="form-label mb-0">
-                      Title
-                    </label>
-                    <small
-                      id="etitleCounter"
-                      className={`char-counter${
-                        isTitleOverPreviewLimit ? " char-counter-warning" : ""
-                      }`}
-                    >
-                      {note.etitle.length} / {TITLE_TRUNCATE_LIMIT}
-                    </small>
-                  </div>
+                  <label htmlFor="etitle" className="form-label">
+                    Title
+                  </label>
                   <input
                     type="text"
                     id="etitle"
@@ -210,7 +200,8 @@ function NoteView() {
                     value={note.etitle}
                     onChange={onChange}
                     className="form-control"
-                    aria-describedby="etitleCounter etitleLengthHint"
+                    maxLength={200}
+                    aria-describedby="etitleLengthHint"
                   />
                   <p
                     id="etitleLengthHint"
@@ -220,26 +211,14 @@ function NoteView() {
                     aria-live="polite"
                   >
                     {isTitleOverPreviewLimit
-                      ? `Only the first ${TITLE_TRUNCATE_LIMIT} characters will show in the notes list preview — full text is always visible when you open the note.`
+                      ? `Heads up — only the first ${TITLE_TRUNCATE_LIMIT} characters will show in the notes list preview. The full title is always visible when you open the note.`
                       : ""}
                   </p>
                 </div>
                 <div className="mb-3">
-                  <div className="field-label-row">
-                    <label htmlFor="edescription" className="form-label mb-0">
-                      Description
-                    </label>
-                    <small
-                      id="edescriptionCounter"
-                      className={`char-counter${
-                        isDescriptionOverPreviewLimit
-                          ? " char-counter-warning"
-                          : ""
-                      }`}
-                    >
-                      {note.edescription.length} / {DESCRIPTION_TRUNCATE_LIMIT}
-                    </small>
-                  </div>
+                  <label htmlFor="edescription" className="form-label">
+                    Description
+                  </label>
                   <textarea
                     id="edescription"
                     name="edescription"
@@ -247,7 +226,8 @@ function NoteView() {
                     onChange={onChange}
                     className="form-control"
                     rows={6}
-                    aria-describedby="edescriptionCounter edescriptionLengthHint"
+                    maxLength={5000}
+                    aria-describedby="edescriptionLengthHint"
                   ></textarea>
                   <p
                     id="edescriptionLengthHint"
@@ -257,7 +237,7 @@ function NoteView() {
                     aria-live="polite"
                   >
                     {isDescriptionOverPreviewLimit
-                      ? `Only the first ${DESCRIPTION_TRUNCATE_LIMIT} characters will show in the notes list preview — full text is always visible when you open the note.`
+                      ? `Heads up — only the first ${DESCRIPTION_TRUNCATE_LIMIT} characters will show in the notes list preview. The full description is always visible when you open the note.`
                       : ""}
                   </p>
                 </div>

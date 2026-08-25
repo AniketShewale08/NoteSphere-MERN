@@ -8,11 +8,16 @@ const NotesSchema = new Schema({
     },
     title:{
         type:String,
-        required:true
+        required:true,
+        // Defense-in-depth: the route-level express-validator check in
+        // routes/notes.js is the primary gate; this is a backstop against
+        // any other write path (scripts, a future route) bypassing it.
+        maxlength: 200
     },
     description:{
         type:String,
-        required:true
+        required:true,
+        maxlength: 5000
     },
     tag:{
         type:String,

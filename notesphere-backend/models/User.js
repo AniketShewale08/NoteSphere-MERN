@@ -34,6 +34,20 @@ const UserSchema = new Schema({
     tokenVersion:{
         type:Number,
         default:0
+    },
+    // Email verification — a soft, non-blocking confirmation (see routes/auth.js
+    // verify-email/resend-verification): an unverified user can still log in and
+    // use the app fully, they just see a reminder banner until they click the
+    // link. Same hashed-token + expiry pattern as password reset above.
+    isVerified:{
+        type:Boolean,
+        default:false
+    },
+    verificationToken:{
+        type:String
+    },
+    verificationTokenExpires:{
+        type:Date
     }
 });
 

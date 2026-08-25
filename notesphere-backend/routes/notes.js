@@ -72,10 +72,12 @@ router.post(
   "/addnotes",
   fetchuser,
   [
-    body("title").isLength({ min: 3 }).withMessage("Enter a valid title"),
+    body("title")
+      .isLength({ min: 3, max: 200 })
+      .withMessage("Title must be between 3 and 200 characters."),
     body("description")
-      .isLength({ min: 5 })
-      .withMessage("Description must be atleast 5 character"),
+      .isLength({ min: 5, max: 5000 })
+      .withMessage("Description must be between 5 and 5000 characters."),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -113,13 +115,13 @@ router.put(
     body("title")
       .optional()
       .trim()
-      .isLength({ min: 3 })
-      .withMessage("Enter a valid title"),
+      .isLength({ min: 3, max: 200 })
+      .withMessage("Title must be between 3 and 200 characters."),
     body("description")
       .optional()
       .trim()
-      .isLength({ min: 5 })
-      .withMessage("Description must be atleast 5 character"),
+      .isLength({ min: 5, max: 5000 })
+      .withMessage("Description must be between 5 and 5000 characters."),
   ],
   async (req, res) => {
     const errors = validationResult(req);

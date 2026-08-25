@@ -36,6 +36,14 @@ const Login = () => {
 
       if (json.success) {
         localStorage.setItem("token", json.authenticate);
+        // Cached for the navbar avatar (initials + deterministic color) so it
+        // doesn't need its own API call on every page load. Kept in sync by
+        // Profile.js whenever the name is edited.
+        localStorage.setItem("userName", json.name || "");
+        localStorage.setItem("userEmail", credentials.email);
+        // Cached for the soft email-verification reminder banner (Navbar reads this
+        // to decide whether to show it) — avoids an extra API call on every page load.
+        localStorage.setItem("isVerified", json.isVerified ? "true" : "false");
         showAlert("Login Successfully", "success");
         navigate("/");
       } else if (response.status === 429) {

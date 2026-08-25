@@ -1,0 +1,35 @@
+.not-found-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 80px 20px;
+  animation: fadeInUp 0.6s var(--ease) both;
+}
+
+.not-found-code {
+  font-size: 5rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 8px;
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.not-found-container h1 {
+  color: var(--text);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.not-found-lead {
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+
+.not-found-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
