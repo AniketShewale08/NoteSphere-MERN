@@ -41,6 +41,9 @@ const Login = () => {
         // Profile.js whenever the name is edited.
         localStorage.setItem("userName", json.name || "");
         localStorage.setItem("userEmail", credentials.email);
+        // Cached for the soft email-verification reminder banner (Navbar reads this
+        // to decide whether to show it) — avoids an extra API call on every page load.
+        localStorage.setItem("isVerified", json.isVerified ? "true" : "false");
         showAlert("Login Successfully", "success");
         navigate("/");
       } else if (response.status === 429) {

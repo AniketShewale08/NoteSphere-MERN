@@ -11,6 +11,7 @@ import { sendEmail } from '../services/emailService.js';
 import { buildWelcomeEmail } from '../templates/welcomeEmail.js';
 import { buildPasswordResetEmail } from '../templates/passwordResetEmail.js';
 import { buildPasswordChangedEmail } from '../templates/passwordChangedEmail.js';
+import { buildVerificationEmail } from '../templates/verificationEmail.js';
 import crypto from 'crypto';
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -50,6 +51,13 @@ router.post("/createuser", authLimiter, [
             password: securePassword,
           });
 
+          // Email verification — soft/non-blocking (see verify-email/resend-verification
+          // below): stored the same hashed-token + expiry way as password reset.
+          const rawVerifyToken = crypto.randomBytes(32).toString('hex');
+          user.verificationToken = crypto.createHash('sha256').update(rawVerifyToken).digest('hex');
+          user.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+          await user.save();
+
           const data = {
             user :{
                 id : user.id,
@@ -63,8 +71,9 @@ router.post("/createuser", authLimiter, [
           success = true;
           res.status(201).json({success, authenticate});
 
-          // Send a welcome email in the background. This runs AFTER the response and is
-          // not awaited, so email latency or failure can never block or fail registration.
+          // Send the welcome + verification emails in the background. Both run AFTER
+          // the response and are not awaited, so email latency or failure can never
+          // block or fail registration.
           try {
             const { subject, html } = buildWelcomeEmail(user.name);
             sendEmail({ to: user.email, subject, html }).then((result) => {
@@ -74,6 +83,20 @@ router.post("/createuser", authLimiter, [
             });
           } catch (err) {
             console.error("[welcome-email] unexpected error:", err.message);
+          }
+
+          try {
+            const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000")
+                .split(",")[0].trim();
+            const verifyUrl = `${clientUrl}/verify-email/${rawVerifyToken}`;
+            const { subject, html } = buildVerificationEmail(user.name, verifyUrl);
+            sendEmail({ to: user.email, subject, html }).then((result) => {
+              if (!result.success) {
+                console.error(`[verification-email] failed for ${user.email}: ${result.error}`);
+              }
+            });
+          } catch (err) {
+            console.error("[verification-email] unexpected error:", err.message);
           }
     }
     // To handle the unexpected error
@@ -129,9 +152,11 @@ router.post('/login', authLimiter, [
             expiresIn: "7d",
         });
 
-        // sending authentication token as a json object.
+        // sending authentication token as a json object. name/isVerified are included
+        // so the frontend can show them (navbar avatar initials, verify-email banner)
+        // without a second round trip right after login.
         success = true;
-        res.json({success,authenticate});
+        res.json({success,authenticate, name: user.name, isVerified: user.isVerified});
 
     }
     // handling errors in catch block
@@ -240,6 +265,142 @@ router.post('/reset-password/:token', authLimiter, [
         return res.json({ success: true, message: "Your password has been reset. You can now log in." });
     } catch (error) {
         console.error("Error in reset-password:", error.message);
+        return res.status(500).json({ success: false, message: "Internal server error." });
+    }
+});
+
+// POST request /api/auth/verify-email/:token : confirm a user's email address using
+// the link sent by createuser/resend-verification. Non-blocking feature — this just
+// flips isVerified to true; it never affects whether the user can log in or use the app.
+router.post('/verify-email/:token', apiLimiter, async (req, res) => {
+    try {
+        // Hash the incoming raw token the same way as reset-password above and find
+        // a matching, non-expired user.
+        const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+        const user = await User.findOne({
+            verificationToken: hashedToken,
+            verificationTokenExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: "This verification link is invalid or has expired." });
+        }
+
+        if (user.isVerified) {
+            // Already verified (e.g. link clicked twice) — treat as success, not an error.
+            return res.json({ success: true, message: "Your email is already verified." });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        user.verificationTokenExpires = undefined;
+        await user.save();
+
+        return res.json({ success: true, message: "Your email has been verified. Thanks!" });
+    } catch (error) {
+        console.error("Error in verify-email:", error.message);
+        return res.status(500).json({ success: false, message: "Internal server error." });
+    }
+});
+
+// POST request /api/auth/resend-verification : send a fresh verification link.
+// Same anti-enumeration pattern as forgot-password — always the same generic response,
+// whether or not the email exists or is already verified.
+router.post('/resend-verification', authLimiter, [
+    body("email").isEmail().withMessage("Invalid email address.")
+], async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const genericResponse = {
+        success: true,
+        message: "If an account with that email exists and needs verification, a new link has been sent."
+    };
+
+    try {
+        const user = await User.findOne({ email: req.body.email });
+
+        if (user && !user.isVerified) {
+            const rawVerifyToken = crypto.randomBytes(32).toString('hex');
+            user.verificationToken = crypto.createHash('sha256').update(rawVerifyToken).digest('hex');
+            user.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+            await user.save();
+
+            const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000")
+                .split(",")[0].trim();
+            const verifyUrl = `${clientUrl}/verify-email/${rawVerifyToken}`;
+
+            const { subject, html } = buildVerificationEmail(user.name, verifyUrl);
+            const result = await sendEmail({ to: user.email, subject, html });
+            if (!result.success) {
+                console.error(`[resend-verification] email failed for ${user.email}: ${result.error}`);
+            }
+        }
+
+        return res.json(genericResponse);
+    } catch (error) {
+        console.error("Error in resend-verification:", error.message);
+        return res.json(genericResponse);
+    }
+});
+
+// POST request /api/auth/send-verification : resend the verification link to the
+// LOGGED-IN user's own address. This is what the in-app reminder banner calls.
+//
+// Deliberately NOT the generic-response treatment that /resend-verification above
+// uses: that endpoint is public, so it has to stay silent about whether an address
+// exists. This one is JWT-gated and always uses req.user.id (the email in the body,
+// if any, is ignored), so there's no account to enumerate — which means it can afford
+// to tell the truth. That matters: a silently-swallowed SMTP failure looks identical
+// to a delivered email from the user's side, and they just sit waiting for a message
+// that never got sent.
+router.post('/send-verification', authLimiter, fetchuser, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found." });
+        }
+
+        if (user.isVerified) {
+            // Not an error — the banner can just take itself down.
+            return res.json({
+                success: true,
+                alreadyVerified: true,
+                message: "Your email is already verified."
+            });
+        }
+
+        const rawVerifyToken = crypto.randomBytes(32).toString('hex');
+        user.verificationToken = crypto.createHash('sha256').update(rawVerifyToken).digest('hex');
+        user.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+        await user.save();
+
+        const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000")
+            .split(",")[0].trim();
+        const verifyUrl = `${clientUrl}/verify-email/${rawVerifyToken}`;
+
+        const { subject, html } = buildVerificationEmail(user.name, verifyUrl);
+        const result = await sendEmail({ to: user.email, subject, html });
+
+        if (!result.success) {
+            // Surface it instead of pretending it worked. The full reason goes to the
+            // server log; the user gets a plain "it didn't send" they can act on.
+            console.error(`[send-verification] email failed for ${user.email}: ${result.error}`);
+            return res.status(502).json({
+                success: false,
+                message: "We couldn't send the email just now. Please try again in a moment."
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: `Verification link sent to ${user.email}.`
+        });
+    } catch (error) {
+        console.error("Error in send-verification:", error.message);
         return res.status(500).json({ success: false, message: "Internal server error." });
     }
 });
@@ -413,6 +574,5 @@ router.delete('/deleteaccount', apiLimiter, fetchuser, [
         res.status(500).json({success:false, error:"Internal server error."})
     }
 });
-
 
 export default router;

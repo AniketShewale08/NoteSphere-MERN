@@ -37,6 +37,7 @@ const Navbar = () => {
         const json = await response.json();
         localStorage.setItem("userName", json.user.name);
         localStorage.setItem("userEmail", json.user.email);
+        localStorage.setItem("isVerified", json.user.isVerified ? "true" : "false");
         if (!cancelled) forceAvatarRefresh((v) => v + 1);
       } catch (error) {
         // No network/API issue is worth surfacing here — the avatar just
@@ -66,6 +67,7 @@ const Navbar = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
     localStorage.removeItem("userEmail");
+    localStorage.removeItem("isVerified");
     navigate("/");
   };
 

@@ -137,6 +137,24 @@
   border-color: rgba(244, 63, 94, 0.4);
 }
 
+/* Success variant — same shape as .alert-danger above, used by VerifyEmail.js
+   when a verification link succeeds. */
+.alert-success {
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  margin-bottom: 14px;
+  animation: fadeInUp 0.3s var(--ease) both;
+}
+:root[data-theme="dark"] .alert-success {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
 @media (max-width: 768px) {
   .login-form { padding: 28px 20px; }
   .login-form h2 { font-size: 1.6rem; }
