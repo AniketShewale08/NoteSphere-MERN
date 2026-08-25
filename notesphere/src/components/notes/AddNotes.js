@@ -66,19 +66,9 @@ const AddNote = () => {
           <h1 className="text-center mb-4">Add Notes</h1>
           <form>
             <div className="mb-3">
-              <div className="field-label-row">
-                <label htmlFor="title" className="form-label mb-0">
-                  Title
-                </label>
-                <small
-                  id="titleCounter"
-                  className={`char-counter${
-                    isTitleOverPreviewLimit ? " char-counter-warning" : ""
-                  }`}
-                >
-                  {note.title.length} / {TITLE_TRUNCATE_LIMIT}
-                </small>
-              </div>
+              <label htmlFor="title" className="form-label">
+                Title
+              </label>
               <input
                 type="text"
                 className="form-control"
@@ -87,7 +77,8 @@ const AddNote = () => {
                 placeholder="Enter note title"
                 value={note.title}
                 onChange={onChange}
-                aria-describedby="titleCounter titleLengthHint"
+                maxLength={200}
+                aria-describedby="titleLengthHint"
               />
               <p
                 id="titleLengthHint"
@@ -97,26 +88,14 @@ const AddNote = () => {
                 aria-live="polite"
               >
                 {isTitleOverPreviewLimit
-                  ? `Only the first ${TITLE_TRUNCATE_LIMIT} characters will show in the notes list preview — full text is always visible when you open the note.`
+                  ? `Heads up — only the first ${TITLE_TRUNCATE_LIMIT} characters will show in the notes list preview. The full title is always visible when you open the note.`
                   : ""}
               </p>
             </div>
             <div className="mb-3">
-              <div className="field-label-row">
-                <label htmlFor="description" className="form-label mb-0">
-                  Description
-                </label>
-                <small
-                  id="descriptionCounter"
-                  className={`char-counter${
-                    isDescriptionOverPreviewLimit
-                      ? " char-counter-warning"
-                      : ""
-                  }`}
-                >
-                  {note.description.length} / {DESCRIPTION_TRUNCATE_LIMIT}
-                </small>
-              </div>
+              <label htmlFor="description" className="form-label">
+                Description
+              </label>
               <textarea
                 className="form-control"
                 id="description"
@@ -125,7 +104,8 @@ const AddNote = () => {
                 rows="4"
                 value={note.description}
                 onChange={onChange}
-                aria-describedby="descriptionCounter descriptionLengthHint"
+                maxLength={5000}
+                aria-describedby="descriptionLengthHint"
               />
               <p
                 id="descriptionLengthHint"
@@ -135,7 +115,7 @@ const AddNote = () => {
                 aria-live="polite"
               >
                 {isDescriptionOverPreviewLimit
-                  ? `Only the first ${DESCRIPTION_TRUNCATE_LIMIT} characters will show in the notes list preview — full text is always visible when you open the note.`
+                  ? `Heads up — only the first ${DESCRIPTION_TRUNCATE_LIMIT} characters will show in the notes list preview. The full description is always visible when you open the note.`
                   : ""}
               </p>
             </div>
